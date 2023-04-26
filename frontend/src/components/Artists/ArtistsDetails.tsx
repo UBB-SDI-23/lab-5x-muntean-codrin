@@ -1,9 +1,9 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { BACKEND_API_URL } from "../../constants";
 import { Container } from "@mui/system";
-import { Button, Card, CardActions, CardContent, IconButton, TextField } from "@mui/material";
+import { Card, CardActions, CardContent, IconButton} from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Artist from "../../models/Artist";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
