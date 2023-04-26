@@ -6,28 +6,7 @@ import {Container} from "@mui/system";
 import {Button, Card, CardContent, IconButton, TextField} from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Artist from "../../models/Artist";
-import {makeStyles} from "@mui/styles";
 
-
-const useStyles = makeStyles({
-    container: {
-        padding: '4em',
-    },
-    card: {
-        display: "inline-block",
-        minWidth: 100,
-        maxWidth: 500,
-        overflow: "hidden",
-    },
-
-    second_card: {
-        display: "inline-block",
-    },
-
-    p: {
-        paddingLeft: "3%",
-    }
-});
 
 
 export const ArstistsEdit = () => {
@@ -63,8 +42,6 @@ export const ArstistsEdit = () => {
 
     }, [artistId]);
 
-    const classes = useStyles();
-
     const updateArtist = async (event: { preventDefault: () => void }) => {
         event.preventDefault();
         try {
@@ -79,8 +56,8 @@ export const ArstistsEdit = () => {
 
 
     return (
-        <Container className={classes.container}>
-            <Card className={classes.card}>
+        <Container>
+            <Card>
                 <CardContent>
                     <IconButton component={Link} sx={{ mr: 3 }} to={`/artists`}>
                         <ArrowBackIcon />
@@ -93,7 +70,7 @@ export const ArstistsEdit = () => {
                     <p>artist profile picture url: {artist?.profilePictureUrl}</p>
                 </CardContent>
             </Card>
-            <Card className={classes.second_card}>
+            <Card>
                 <CardContent>
                     <form onSubmit={updateArtist}>
                         <TextField

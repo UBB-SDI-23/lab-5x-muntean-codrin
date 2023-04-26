@@ -6,29 +6,9 @@ import { Container } from "@mui/system";
 import { Button, Card, CardActions, CardContent, IconButton, TextField } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Artist from "../../models/Artist";
-import { makeStyles } from "@mui/styles";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from '@mui/icons-material/Edit';
 
-const useStyles = makeStyles({
-    container: {
-        padding: '4em',
-    },
-    card: {
-        display: "inline-block",
-        minWidth: 100,
-        maxWidth: 500,
-        overflow: "hidden",
-    },
-
-    second_card: {
-        display: "inline-block",
-    },
-
-    p: {
-        paddingLeft: "3%",
-    }
-});
 
 export const ArtistsDetails = () => {
     const { artistId } = useParams();
@@ -52,12 +32,9 @@ export const ArtistsDetails = () => {
 
     }, [artistId]);
 
-
-    const classes = useStyles();
-
     return (
-        <Container className={classes.container}>
-            <Card className={classes.card}>
+        <Container>
+            <Card>
                 <CardContent>
                     <IconButton component={Link} sx={{ mr: 3 }} to={`/artists`}>
                         <ArrowBackIcon />
@@ -73,9 +50,9 @@ export const ArtistsDetails = () => {
                         {artist?.albumList?.map((album, index) => (
                             <CardContent key={album.id}>
                                 <li>Album details</li>
-                                <p className={classes.p}>Name of album : {album?.title}</p>
-                                <p className={classes.p}>Release date : {album?.releaseDate.toString()}</p>
-                                <p className={classes.p}>Cover image url : {album?.coverImageUrl}</p>
+                                <p>Name of album : {album?.title}</p>
+                                <p>Release date : {album?.releaseDate.toString()}</p>
+                                <p>Cover image url : {album?.coverImageUrl}</p>
                             </CardContent>
                         ))}
                     </ul>
