@@ -24,9 +24,7 @@ namespace backend.Controllers
         public IActionResult GetAlbumsList([FromQuery] PaginationFilter filter)
         {
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            List<AlbumResponse> albums = new List<AlbumResponse>();
-
-            albums = _albumService.GetAll(filter);
+            List<AlbumResponse> albums = _albumService.GetAll(filter);
             
             var totalRecords = _albumService.GetAlbumsCount();
             var route = Request.Path.Value;

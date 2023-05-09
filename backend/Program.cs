@@ -22,6 +22,7 @@ namespace backend
 
             builder.Services.AddScoped<ArtistsService>();
             builder.Services.AddScoped<AlbumsService>();
+            builder.Services.AddScoped<TracksService>();
 
 
             builder.Services.AddHttpContextAccessor();
