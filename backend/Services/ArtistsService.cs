@@ -23,14 +23,14 @@ namespace backend.Services
         {
             return _databaseContext.Artists
                 .Skip((filter.PageNumber - 1) * filter.PageSize)
-                .Take(filter.PageSize).ToList().ToList();
+                .Take(filter.PageSize).OrderBy(a => a.Id).ToList();
         }
 
         public List<Artist> GetAllAfterYear(PaginationFilter filter, int year)
         {
             return _databaseContext.Artists.Where(artist => artist.DebutYear > year)
                 .Skip((filter.PageNumber - 1) * filter.PageSize)
-                .Take(filter.PageSize).ToList();
+                .Take(filter.PageSize).OrderBy(a => a.Id).ToList();
         }
 
         public ArtistResponse GetById(int id)

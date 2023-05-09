@@ -19,7 +19,11 @@ namespace backend
 
             builder.Services.AddDbContext<DatabaseContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("AzureDatabase")));
+
             builder.Services.AddScoped<ArtistsService>();
+            builder.Services.AddScoped<AlbumsService>();
+
+
             builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddSingleton<IUriService>(o =>
