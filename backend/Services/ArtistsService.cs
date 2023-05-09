@@ -3,6 +3,7 @@ using backend.Models;
 using backend.Models.Request;
 using backend.Models.Response;
 using backend.Models.Statistics;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services
 {
@@ -112,28 +113,23 @@ namespace backend.Services
             return artists;
         }
 
-        //public List<ArtistSongs> GetArtistsSongs()
-        //{
+        public List<ArtistSongs> GetArtistsSongs(PaginationFilter filter)
+        {
+            var artistSongs = from artist in _databaseContext.Artists
+                              join album in _databaseContext.Albums on artist.Id equals album.ArtistId
+                              join track in _databaseContext.Tracks on album.Id equals track.AlbumId into trackGroup
+                              from track in trackGroup.DefaultIfEmpty()
+                              group track by new { artist.Id, artist.Name } into artistGroup
+                              select new ArtistSongs
+                              {
+                                  ArtistId = artistGroup.Key.Id,
+                                  ArtistName = artistGroup.Key.Name,
+                                  SongsCount = artistGroup.Count(t => t != null)
+                              };
 
-        //    var artists = _databaseContext.Artists.ToList();
-        //    var artistsSongs = new List<ArtistSongs>();
-        //    foreach (var artist in artists)
-        //    {
-        //        var artistSongs = new ArtistSongs();
-        //        artistSongs.ArtistId = artist.Id;
-        //        artistSongs.ArtistName = artist.Name;
-
-        //        var songsCount = _databaseContext.Tracks.Where(t => t.)
-
-        //        artistSongs.SongsCount = songsCount;
-        //        artistsSongs.Add(artistSongs);
-        //    }
-        //    artistsSongs.Sort((a, b) => b.SongsCount - a.SongsCount);
-        //    return artistsSongs;
-        //}
-
-        //public int GetArtistsSongsCount()
-        //{
-        //}
+            return artistSongs.OrderByDescending(a => a.SongsCount)
+                .Skip((filter.PageNumber - 1) * filter.PageSize)
+                .Take(filter.PageSize).ToList();
+        }
     }
 }

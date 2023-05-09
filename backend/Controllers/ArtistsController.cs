@@ -88,22 +88,22 @@ namespace backend.Controllers
             return Ok(artist);
         }
 
-        //[HttpGet("Songs")]
-        //public ActionResult<List<ArtistSongs>> GetArtistsSongs([FromQuery] PaginationFilter filter)
-        //{
-        //    var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-        //    List<ArtistSongs> artistsSongs = new List<ArtistSongs>();
+        [HttpGet("Songs")]
+        public ActionResult<List<ArtistSongs>> GetArtistsSongs([FromQuery] PaginationFilter filter)
+        {
+            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+            List<ArtistSongs> artistsSongs = new List<ArtistSongs>();
 
-        //    artistsSongs = _artistsService.GetArtistsSongs();
-        //    if (artistsSongs == null)
-        //        return NotFound();
-            
-        //    var totalRecords = _artistsService.GetArtistsSongsCount();
-        //    var route = Request.Path.Value;
-        //    var pagedReponse = PaginationHelper.CreatePagedReponse(artistsSongs, validFilter, totalRecords, _uriService, route);
+            artistsSongs = _artistsService.GetArtistsSongs(filter);
+            if (artistsSongs == null)
+                return NotFound();
 
-        //    return Ok(pagedReponse);
+            var totalRecords = _artistsService.GetArtistsCount();
+            var route = Request.Path.Value;
+            var pagedReponse = PaginationHelper.CreatePagedReponse(artistsSongs, validFilter, totalRecords, _uriService, route);
 
-        //}
+            return Ok(pagedReponse);
+
+        }
     }
 }
