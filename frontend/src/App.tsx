@@ -9,6 +9,7 @@ import { ArstistsEdit } from './components/Artists/ArtistsEdit';
 import { ArtistsDetails } from './components/Artists/ArtistsDetails';
 import { ThemeProvider } from '@emotion/react';
 import theme from './theme';
+import { PlaylistsShowLength } from './components/Playlists/PlaylistsShowLength';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/artists/:artistId/delete" element={<ArtistsDelete />} />
           <Route path="/artists/:artistId/edit" element={<ArstistsEdit />} />
           <Route path="/artists/:artistId/details" element={<ArtistsDetails />} />
+          <Route path="/playlists" element={<PlaylistsShowLength />} />
         </Routes>
       </Router>
       </ThemeProvider>
