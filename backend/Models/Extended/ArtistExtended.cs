@@ -10,6 +10,8 @@
         public string ProfilePictureUrl { get; set; }
         public int AlbumsCount { get; set; }
 
+        public string AddedBy { get; set; }
+
         public ArtistExtended(Artist artist, int albumsCount)
         {
             Id = artist.Id;
@@ -19,6 +21,7 @@
             DebutYear = artist.DebutYear;
             ProfilePictureUrl = artist.ProfilePictureUrl;
             AlbumsCount = albumsCount;
+            AddedBy = artist.AddedBy;
         }
     }
 }

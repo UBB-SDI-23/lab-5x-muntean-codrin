@@ -10,6 +10,8 @@
         public DateTime ReleaseDate { get; set; }
         public int AppearsInPlaylists { get; set; }
 
+        public string AddedBy { get; set; }
+
         public TrackExtended(Track track, int appearsInPlaylists)
         {
             Id = track.Id;
@@ -19,6 +21,7 @@
             Milliseconds = track.Milliseconds;
             ReleaseDate = track.ReleaseDate;
             AppearsInPlaylists = appearsInPlaylists;
+            AddedBy = track.AddedBy;
         }
     }
 }

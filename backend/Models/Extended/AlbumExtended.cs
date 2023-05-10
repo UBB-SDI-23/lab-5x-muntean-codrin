@@ -7,8 +7,8 @@
         public int ArtistId { get; set; }
         public DateTime ReleaseDate { get; set; }
         public string CoverImageUrl { get; set; }
-
         public int TracksCount { get; set; }
+        public string AddedBy { get; set; }
 
         public AlbumExtended(Album album, int tracksCount)
         {
@@ -18,6 +18,7 @@
             this.ReleaseDate = album.ReleaseDate;
             this.CoverImageUrl = album.CoverImageUrl;
             TracksCount = tracksCount;
+            AddedBy = album.AddedBy;
         }
     }
 }

@@ -9,5 +9,6 @@
         public int Milliseconds { get; set; }
         public DateTime ReleaseDate { get; set; }
         public Album Album { get; set; }
+        public string AddedBy { get; set; }
     }
 }

@@ -6,11 +6,14 @@
         public string Name { get; set; }
         public int TracksCount { get; set; }
 
+        public string AddedBy { get; set; }
+
         public PlaylistExtended(Playlist playlist, int tracksCount)
         {
             Id = playlist.Id;
             Name = playlist.Name;
             TracksCount = tracksCount;
+            AddedBy = playlist.AddedBy;
         }
     }
 }
