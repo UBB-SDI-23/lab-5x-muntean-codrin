@@ -45,9 +45,7 @@ namespace backend.Services
                 return null;
             }
 
-            var playlistResponse = new PlaylistResponse();
-            playlistResponse.Id = id;
-            playlistResponse.Name = playlist.Name;
+            var playlistResponse = new PlaylistResponse(playlist);
 
             var tracks = _databaseContext.TrackPlaylists.Include(tp => tp.Track).Where(t => t.PlaylistId == id).Select(tp => tp.Track).ToList();
             var trackResponses = new List<TrackResponse>();

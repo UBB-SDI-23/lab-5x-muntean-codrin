@@ -7,6 +7,7 @@
         public string Description { get; set; }
         public string WebsiteLink { get; set; }
         public int DebutYear { get; set; }
+        public string AddedBy { get; set; }
         public string ProfilePictureUrl { get; set; }
     }
 }

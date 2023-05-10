@@ -1,6 +1,12 @@
+using backend.Models;
 using backend.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace backend
 {
@@ -9,7 +15,7 @@ namespace backend
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            ConfigurationManager configuration = builder.Configuration;
             // Add services to the container.
 
             builder.Services.AddControllers();
@@ -20,6 +26,26 @@ namespace backend
             builder.Services.AddDbContext<DatabaseContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("AzureDatabase")));
 
+            builder.Services.AddIdentity<User, IdentityRole>()
+               .AddEntityFrameworkStores<DatabaseContext>()
+               .AddDefaultTokenProviders();
+
+            builder.Services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireUppercase = true;
+            });
+
+
+            // for not returing a 400 request when model validation fails. Instead use: if(!ModelState.IsValid) and return a Response object.
+            builder.Services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
+            });
+
+            builder.Services.AddScoped<UserService, UserService>();
             builder.Services.AddScoped<ArtistsService>();
             builder.Services.AddScoped<AlbumsService>();
             builder.Services.AddScoped<TracksService>();
@@ -36,6 +62,26 @@ namespace backend
                 return new UriService(uri);
             });
 
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidAudience = configuration["JWT:ValidAudience"],
+                    ValidIssuer = configuration["JWT:ValidIssuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
+                };
+            });
+
+
             var app = builder.Build();
 
             app.UseSwagger();
@@ -43,6 +89,7 @@ namespace backend
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

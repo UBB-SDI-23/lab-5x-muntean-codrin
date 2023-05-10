@@ -8,6 +8,9 @@
         public string WebsiteLink { get; set; }
         public int DebutYear { get; set; }
         public string ProfilePictureUrl { get; set; }
+
+        public string AddedBy { get; set; }
+
         public List<AlbumResponse> albumList;
 
         public ArtistResponse(Artist artist, List<AlbumResponse> albumList)
@@ -19,6 +22,7 @@
             this.DebutYear = artist.DebutYear;
             this.ProfilePictureUrl = artist.ProfilePictureUrl;
             this.albumList = albumList;
+            AddedBy = artist.AddedBy;
         }
     }
 }

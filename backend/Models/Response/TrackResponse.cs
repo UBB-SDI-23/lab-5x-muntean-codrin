@@ -8,6 +8,7 @@
         public string Composer { get; set; }
         public int Milliseconds { get; set; }
         public DateTime ReleaseDate { get; set; }
+        public string AddedBy { get; set; }
 
         public TrackResponse(Track track)
         {
@@ -17,6 +18,7 @@
             Composer = track.Composer;
             Milliseconds = track.Milliseconds;
             ReleaseDate = track.ReleaseDate;
+            AddedBy = track.AddedBy;
         }
     }
 }
