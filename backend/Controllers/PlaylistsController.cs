@@ -1,5 +1,6 @@
 ﻿using backend.Helpers;
 using backend.Models;
+using backend.Models.Extended;
 using backend.Models.Request;
 using backend.Models.Response;
 using backend.Models.Statistics;
@@ -25,11 +26,11 @@ namespace backend.Controllers
         public IActionResult GetPlaylistsList([FromQuery] PaginationFilter filter)
         {
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            List<Playlist> albums = _playlistService.GetAll(filter);
+            List<PlaylistExtended> playlists = _playlistService.GetAll(filter);
 
             var totalRecords = _playlistService.GetPlaylistsCount();
             var route = Request.Path.Value;
-            var pagedReponse = PaginationHelper.CreatePagedReponse(albums, validFilter, totalRecords, _uriService, route);
+            var pagedReponse = PaginationHelper.CreatePagedReponse(playlists, validFilter, totalRecords, _uriService, route);
 
             return Ok(pagedReponse);
         }

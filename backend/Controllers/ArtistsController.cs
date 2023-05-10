@@ -1,6 +1,7 @@
 ﻿using Azure;
 using backend.Helpers;
 using backend.Models;
+using backend.Models.Extended;
 using backend.Models.Request;
 using backend.Models.Response;
 using backend.Models.Statistics;
@@ -29,16 +30,19 @@ namespace backend.Controllers
         public IActionResult GetArtistList([FromQuery] PaginationFilter filter, [FromQuery(Name = "year")] int? year)
         {
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            List<Artist> artists = new List<Artist>();
+            List<ArtistExtended> artists = new List<ArtistExtended>();
+            int totalRecords;
             if (year.HasValue)
             {
                 artists = _artistsService.GetAllAfterYear(filter, year.Value);
+                totalRecords = _artistsService.GetArtistsCount(year.Value);
             }
             else
             {
                 artists = _artistsService.GetAll(filter);
+                totalRecords = _artistsService.GetArtistsCount();
             }
-            var totalRecords = _artistsService.GetArtistsCount();
+            
             var route = Request.Path.Value;
             var pagedReponse = PaginationHelper.CreatePagedReponse(artists, validFilter, totalRecords, _uriService, route);
 

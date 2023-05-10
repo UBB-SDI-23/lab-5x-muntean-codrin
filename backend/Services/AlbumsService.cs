@@ -1,5 +1,6 @@
 ﻿using backend.Helpers;
 using backend.Models;
+using backend.Models.Extended;
 using backend.Models.Request;
 using backend.Models.Response;
 using Microsoft.EntityFrameworkCore;
@@ -20,15 +21,16 @@ namespace backend.Services
             return _databaseContext.Albums.Count();
         }
 
-        public List<AlbumResponse> GetAll(PaginationFilter filter)
+        public List<AlbumExtended> GetAll(PaginationFilter filter)
         {
             var albums = _databaseContext.Albums
                 .Skip((filter.PageNumber - 1) * filter.PageSize)
                 .Take(filter.PageSize).OrderBy(a => a.Id).ToList();
-            var albumReponses = new List<AlbumResponse>();
+            var albumReponses = new List<AlbumExtended>();
             foreach(var album in albums) 
             {
-                albumReponses.Add(new AlbumResponse(album));
+                var tracksCount = _databaseContext.Tracks.Where(s => s.AlbumId == album.Id).Count();
+                albumReponses.Add(new AlbumExtended(album, tracksCount));
             }
             return albumReponses;
         }

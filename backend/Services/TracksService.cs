@@ -1,5 +1,6 @@
 ﻿using backend.Helpers;
 using backend.Models;
+using backend.Models.Extended;
 using backend.Models.Request;
 using backend.Models.Response;
 using Microsoft.EntityFrameworkCore;
@@ -20,17 +21,18 @@ namespace backend.Services
             return _databaseContext.Tracks.Count();
         }
 
-        public List<TrackResponse> GetAll(PaginationFilter filter)
+        public List<TrackExtended> GetAll(PaginationFilter filter)
         {
             var tracks = _databaseContext.Tracks
                 .Skip((filter.PageNumber - 1) * filter.PageSize)
                 .Take(filter.PageSize).OrderBy(a => a.Id).ToList();
-            var trackReponses = new List<TrackResponse>();
+            var tracksExtended = new List<TrackExtended>();
             foreach(var track in tracks)
             {
-                trackReponses.Add(new TrackResponse(track));
+                var appearsInPlaylist = _databaseContext.TrackPlaylists.Where(pt => pt.TrackId == track.Id).Distinct().Count();
+                tracksExtended.Add(new TrackExtended(track, appearsInPlaylist));
             }
-            return trackReponses;
+            return tracksExtended;
         }
 
         public Track GetById(int id)

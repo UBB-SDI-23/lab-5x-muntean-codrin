@@ -1,5 +1,6 @@
 ﻿using backend.Helpers;
 using backend.Models;
+using backend.Models.Extended;
 using backend.Models.Request;
 using backend.Models.Response;
 using backend.Services;
@@ -24,7 +25,7 @@ namespace backend.Controllers
         public IActionResult GetTracksList([FromQuery] PaginationFilter filter)
         {
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            List<TrackResponse> tracks = _tracksService.GetAll(filter);
+            List<TrackExtended> tracks = _tracksService.GetAll(filter);
 
             var totalRecords = _tracksService.GetTracksCount();
             var route = Request.Path.Value;

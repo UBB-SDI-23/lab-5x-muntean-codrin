@@ -1,5 +1,6 @@
 ﻿using backend.Helpers;
 using backend.Models;
+using backend.Models.Extended;
 using backend.Models.Request;
 using backend.Models.Response;
 using backend.Models.Statistics;
@@ -20,18 +21,39 @@ namespace backend.Services
             return _databaseContext.Artists.Count();
         }
 
-        public List<Artist> GetAll(PaginationFilter filter)
+        public int GetArtistsCount(int year)
         {
-            return _databaseContext.Artists
-                .Skip((filter.PageNumber - 1) * filter.PageSize)
-                .Take(filter.PageSize).OrderBy(a => a.Id).ToList();
+            return _databaseContext.Artists.Where(artist => artist.DebutYear > year).Count();
         }
 
-        public List<Artist> GetAllAfterYear(PaginationFilter filter, int year)
+        public List<ArtistExtended> GetAll(PaginationFilter filter)
         {
-            return _databaseContext.Artists.Where(artist => artist.DebutYear > year)
+            var artists = _databaseContext.Artists
                 .Skip((filter.PageNumber - 1) * filter.PageSize)
                 .Take(filter.PageSize).OrderBy(a => a.Id).ToList();
+
+            List<ArtistExtended> artistsExtended = new List<ArtistExtended>();
+            foreach (var artist in artists)
+            {
+                var albumsCount = _databaseContext.Albums.Where(a => a.ArtistId == artist.Id).Count();
+                artistsExtended.Add(new ArtistExtended(artist, albumsCount));
+            }
+            return artistsExtended;
+        }
+
+        public List<ArtistExtended> GetAllAfterYear(PaginationFilter filter, int year)
+        {
+            var artists = _databaseContext.Artists.Where(artist => artist.DebutYear > year)
+                .Skip((filter.PageNumber - 1) * filter.PageSize)
+                .Take(filter.PageSize).OrderBy(a => a.Id).ToList();
+
+            List<ArtistExtended> artistsExtended = new List<ArtistExtended>();
+            foreach (var artist in artists)
+            {
+                var albumsCount = _databaseContext.Albums.Where(a => a.ArtistId == artist.Id).Count();
+                artistsExtended.Add(new ArtistExtended(artist, albumsCount));
+            }
+            return artistsExtended;
         }
 
         public ArtistResponse GetById(int id)

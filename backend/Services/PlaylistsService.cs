@@ -1,5 +1,6 @@
 ﻿using backend.Helpers;
 using backend.Models;
+using backend.Models.Extended;
 using backend.Models.Request;
 using backend.Models.Response;
 using backend.Models.Statistics;
@@ -15,13 +16,21 @@ namespace backend.Services
         {
             _databaseContext = databaseContext;
         }
-        public List<Playlist> GetAll(PaginationFilter filter)
+        public List<PlaylistExtended> GetAll(PaginationFilter filter)
         {
-            return _databaseContext.Playlists
+            var playlists = _databaseContext.Playlists
                 .Skip((filter.PageNumber - 1) * filter.PageSize)
                 .Take(filter.PageSize)
                 .OrderBy(p => p.Id)
                 .ToList();
+            var playlistsExtended = new List<PlaylistExtended>();
+            foreach(var playlist in playlists) 
+            {
+                var tracksCount = _databaseContext.TrackPlaylists.Where(tp => tp.PlaylistId == playlist.Id).Count();
+                var playlistExtended = new PlaylistExtended(playlist, tracksCount);
+                playlistsExtended.Add(playlistExtended);
+            }
+            return playlistsExtended;
         }
         public int GetPlaylistsCount()
         {
