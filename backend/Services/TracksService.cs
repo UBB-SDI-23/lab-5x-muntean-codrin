@@ -54,7 +54,8 @@ namespace backend.Services
                 AlbumId = request.AlbumId,
                 Composer = request.Composer,
                 Milliseconds = request.Milliseconds,
-                ReleaseDate = request.ReleaseDate
+                ReleaseDate = request.ReleaseDate,
+                AddedBy = ""
             };
             _databaseContext.Tracks.Add(track);
             _databaseContext.SaveChanges();
