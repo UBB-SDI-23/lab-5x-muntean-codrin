@@ -27,6 +27,8 @@ import TrackEdit from './components/Tracks/TracksEdit';
 import AlbumEdit from './components/Albums/AlbumEdit';
 import ArtistEdit from './components/Artists/ArtistsEdit';
 import { ArtistsShowSongsCount } from './components/Artists/ArtistsShowSongsCount ';
+import RegisterPage from './components/RegisterPage';
+import LoginPage from './components/LoginPage';
 
 function App() {
   return (
@@ -64,6 +66,9 @@ function App() {
           <Route path="/artists/songs" element={<ArtistsShowSongsCount />} />
 
           <Route path="/user/:email" element={<UserProfilePage />} />
+
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={<LoginPage />} />
         </Routes>
         </BrowserRouter>
       </ThemeProvider>
