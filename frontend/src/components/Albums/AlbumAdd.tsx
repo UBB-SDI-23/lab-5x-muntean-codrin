@@ -7,11 +7,11 @@ import { Link, useNavigate } from "react-router-dom";
 const AlbumAdd = () => {
   const [albumData, setAlbumData] = useState({
     title: "",
-    artistId: 0,
-    releaseDate: new Date().toISOString(),
+    artistId: "",
+    releaseDate: new Date().toISOString().split("T")[0], // Get the date in "YYYY-MM-DD" format
     coverImageUrl: ""
   });
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
   const handleInputChange = (event) => {
@@ -20,14 +20,32 @@ const AlbumAdd = () => {
       ...prevData,
       [name]: value
     }));
-    setError("");
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: ""
+    }));
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    const validationErrors = {};
 
+    // Validate fields
     if (albumData.title.length < 3) {
-      setError("Album title must be at least 3 characters long.");
+      validationErrors.title = "Album title must be at least 3 characters long.";
+    }
+    if (!albumData.artistId) {
+      validationErrors.artistId = "Artist ID is required.";
+    }
+    if (!albumData.releaseDate) {
+      validationErrors.releaseDate = "Release Date is required.";
+    }
+    if (!albumData.coverImageUrl) {
+      validationErrors.coverImageUrl = "Cover Image URL is required.";
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
@@ -36,8 +54,15 @@ const AlbumAdd = () => {
       navigate("/albums");
       // Handle success or navigate to another page
     } catch (error) {
-      console.log(error);
-      // Handle error
+      if (error.response && error.response.status === 404) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          artistId: "Artist ID does not exist."
+        }));
+      } else {
+        console.log(error);
+        // Handle other errors
+      }
     }
   };
 
@@ -50,8 +75,9 @@ const AlbumAdd = () => {
           name="title"
           value={albumData.title}
           onChange={handleInputChange}
-          error={error.length > 0}
-          helperText={error}
+          error={!!errors.title}
+          helperText={errors.title}
+          sx={{ mb: 2 }}
         />
         <br />
         <TextField
@@ -59,6 +85,9 @@ const AlbumAdd = () => {
           name="artistId"
           value={albumData.artistId}
           onChange={handleInputChange}
+          error={!!errors.artistId}
+          helperText={errors.artistId}
+          sx={{ mb: 2 }}
         />
         <br />
         <TextField
@@ -67,6 +96,9 @@ const AlbumAdd = () => {
           name="releaseDate"
           value={albumData.releaseDate}
           onChange={handleInputChange}
+          error={!!errors.releaseDate}
+          helperText={errors.releaseDate}
+          sx={{ mb: 2 }}
         />
         <br />
         <TextField
@@ -74,6 +106,9 @@ const AlbumAdd = () => {
           name="coverImageUrl"
           value={albumData.coverImageUrl}
           onChange={handleInputChange}
+          error={!!errors.coverImageUrl}
+          helperText={errors.coverImageUrl}
+          sx={{ mb: 2 }}
         />
         <br />
         <Button type="submit">Add Album</Button>

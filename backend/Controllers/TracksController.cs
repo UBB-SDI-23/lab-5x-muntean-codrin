@@ -45,6 +45,16 @@ namespace backend.Controllers
         }
 
         [HttpPost()]
+        public ActionResult<Track> PostTrack([FromBody] NewTrackRequest request)
+        {
+            var track = _tracksService.AddTrack(request);
+            if (track == null)
+                return NotFound();
+            return Ok(track);
+        }
+
+
+        [HttpPut("{id}")]
         public ActionResult<Track> PutTrack(int id, [FromBody] NewTrackRequest request)
         {
             var track = _tracksService.UpdateTrack(id, request);

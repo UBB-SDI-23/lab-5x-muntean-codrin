@@ -53,6 +53,26 @@ export const AppMenu = () => {
                         startIcon={<ListIcon  />}>
                         Playlists
                     </Button>
+
+                    <Button
+                        variant={path.startsWith("/playlists/length") ? "outlined" : "text"}
+                        to="/playlists/length"
+                        component={Link}
+                        color="inherit"
+                        sx={{ mr: 5 }}
+                        startIcon={<ListIcon  />}>
+                        Playlists Length
+                    </Button>
+
+                    <Button
+                        variant={path.startsWith("/artists/songs") ? "outlined" : "text"}
+                        to="/artists/songs"
+                        component={Link}
+                        color="inherit"
+                        sx={{ mr: 5 }}
+                        startIcon={<ListIcon  />}>
+                        Songs Count
+                    </Button>
                 </Toolbar>
             </AppBar>
         </Box>

@@ -1,123 +1,154 @@
-import {Link, useNavigate, useParams} from "react-router-dom";
-import {useEffect, useState} from "react";
+import { useState, useEffect } from "react";
+import { Container, TextField, Button } from "@mui/material";
 import axios from "axios";
-import {BACKEND_API_URL} from "../../constants";
-import {Container} from "@mui/system";
-import {Button, Card, CardContent, IconButton, TextField} from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import Artist from "../../models/Artist";
+import { BACKEND_API_URL } from "../../constants";
+import { useParams, useNavigate } from "react-router-dom";
 
-
-
-export const ArstistsEdit = () => {
-
-    const navigate = useNavigate();
-
+const ArtistEdit = () => {
     const { artistId } = useParams();
-    const [artist, setArtist] = useState<Artist>({
+    const [artistData, setArtistData] = useState({
         name: "",
         description: "",
         websiteLink: "",
-        debutYear: 1900,
-        profilePictureUrl: ""
+        debutYear: "",
+        profilePictureUrl: "",
     });
-
-    const [loading, setLoading] = useState(false);
-
+    const [errors, setErrors] = useState({});
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const url = `${BACKEND_API_URL}/artists/${artistId}`
-        const axiosartist = async () => {
-            setLoading(true);
-            await axios.get(url)
-                .then(response => {
-                    const artist = response.data;
-                    setArtist(artist);
-                    setLoading(false);
-                }, error => {
-                    console.log(error);
+        const fetchArtistData = async () => {
+            try {
+                const response = await axios.get(`${BACKEND_API_URL}/artists/${artistId}`);
+                const { name, description, websiteLink, debutYear, profilePictureUrl } = response.data;
+                setArtistData({
+                    name,
+                    description,
+                    websiteLink,
+                    debutYear,
+                    profilePictureUrl,
                 });
+            } catch (error) {
+                console.log(error);
+                // Handle error
+            }
         };
-        axiosartist();
 
+        fetchArtistData();
     }, [artistId]);
 
-    const updateArtist = async (event: { preventDefault: () => void }) => {
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+        setArtistData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+        setErrors((prevErrors) => ({
+            ...prevErrors,
+            [name]: "",
+        }));
+    };
+
+    const handleSubmit = async (event) => {
         event.preventDefault();
+        const validationErrors = {};
+
+        // Validate fields
+        if (!artistData.name || artistData.name.length < 3) {
+            validationErrors.name = "Artist name must be at least 3 characters long.";
+        }
+        if (!artistData.description) {
+            validationErrors.description = "Description is required.";
+        }
+        if (!artistData.websiteLink) {
+            validationErrors.websiteLink = "Website link is required.";
+        }
+        if (!artistData.debutYear || artistData.debutYear < 1900) {
+            validationErrors.debutYear = "Debut year must be greater than 1900.";
+        }
+        if (!artistData.profilePictureUrl) {
+            validationErrors.profilePictureUrl = "Profile picture URL is required.";
+        }
+
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+
         try {
-            setArtist(artist);
-            const response = await axios.put(`${BACKEND_API_URL}/artists/${artistId}`, artist);
+            const response = await axios.put(`${BACKEND_API_URL}/artists/${artistId}`, artistData);
             navigate("/artists");
+            // Handle success or navigate to another page
         } catch (error) {
             console.log(error);
+            // Handle error
         }
     };
 
-
-
     return (
         <Container>
-            <Card>
-                <CardContent>
-                    <IconButton component={Link} sx={{ mr: 3 }} to={`/artists`}>
-                        <ArrowBackIcon />
-                    </IconButton>{" "}
-                    <h1>Artist Details</h1>
-                    <p>artist name: {artist?.name}</p>
-                    <p>artist description: {artist?.description}</p>
-                    <p>artist website link: {artist?.websiteLink}</p>
-                    <p>artist debut year: {artist?.debutYear}</p>
-                    <p>artist profile picture url: {artist?.profilePictureUrl}</p>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardContent>
-                    <form onSubmit={updateArtist}>
-                        <TextField
-                            id="name"
-                            label="Name"
-                            variant="outlined"
-                            fullWidth
-                            sx={{ mb: 2 }}
-                            onChange={(event) => setArtist({ ...artist, name: event.target.value })}
-                        />
-                        <TextField
-                            id="description"
-                            label="description"
-                            variant="outlined"
-                            fullWidth
-                            sx={{ mb: 2 }}
-                            onChange={(event) => setArtist({ ...artist, description: event.target.value })}
-                        />
-                        <TextField
-                            id="websiteLink"
-                            label="websiteLink"
-                            variant="outlined"
-                            fullWidth
-                            sx={{ mb: 2 }}
-                            onChange={(event) => setArtist({ ...artist, websiteLink: event.target.value})}
-                        />
-                        <TextField
-                            id="debutYear"
-                            label="debutYear"
-                            variant="outlined"
-                            fullWidth
-                            sx={{ mb: 2 }}
-                            onChange={(event) => setArtist({ ...artist, debutYear: parseInt(event.target.value )})}
-                        />
-                        <TextField
-                            id="profilePictureUrl"
-                            label="profilePictureUrl"
-                            variant="outlined"
-                            fullWidth
-                            sx={{ mb: 2 }}
-                            onChange={(event) => setArtist({ ...artist, profilePictureUrl: event.target.value })}
-                        />
-
-                        <Button type="submit">Update artist</Button>
-                    </form>
-                </CardContent>
-            </Card>
+            <h1>Edit Artist</h1>
+            <form onSubmit={handleSubmit}>
+                <TextField
+                    label="Artist Name"
+                    name="name"
+                    value={artistData.name}
+                    onChange={handleInputChange}
+                    error={!!errors.name}
+                    helperText={errors.name}
+                    required
+                    sx={{ mb: 2 }}
+                />
+                <br />
+                <TextField
+                    label="Description"
+                    name="description"
+                    value={artistData.description}
+                    onChange={handleInputChange}
+                    error={!!errors.description}
+                    helperText={errors.description}
+                    required
+                    sx={{ mb: 2 }}
+                />
+                <br />
+                <TextField
+                    label="Website Link"
+                    name="websiteLink"
+                    value={artistData.websiteLink}
+                    onChange={handleInputChange}
+                    error={!!errors.websiteLink}
+                    helperText={errors.websiteLink}
+                    required
+                    sx={{ mb: 2 }}
+                />
+                <br />
+                <TextField
+                    type="number"
+                    label="Debut Year"
+                    name="debutYear"
+                    value={artistData.debutYear}
+                    onChange={handleInputChange}
+                    error={!!errors.debutYear}
+                    helperText={errors.debutYear}
+                    required
+                    sx={{ mb: 2 }}
+                />
+                <br />
+                <TextField
+                    label="Profile Picture URL"
+                    name="profilePictureUrl"
+                    value={artistData.profilePictureUrl}
+                    onChange={handleInputChange}
+                    error={!!errors.profilePictureUrl}
+                    helperText={errors.profilePictureUrl}
+                    required
+                    sx={{ mb: 2 }}
+                />
+                <br />
+                <Button type="submit">Save Changes</Button>
+            </form>
         </Container>
     );
 };
+
+export default ArtistEdit;

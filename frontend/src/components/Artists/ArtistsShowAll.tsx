@@ -43,7 +43,7 @@ export const ArtistsShowAll = () => {
     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
         setPage(newPage + 1);
         updateUrlParams(newPage + 1, pageSize);
-
+        setLoading(true);
         fetch(`${BACKEND_API_URL}/artists?pageNumber=${newPage + 1}&pageSize=${pageSize}`)
             .then((response) => response.json())
             .then((data) => {

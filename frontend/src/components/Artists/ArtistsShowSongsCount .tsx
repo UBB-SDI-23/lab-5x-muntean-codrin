@@ -9,14 +9,17 @@ import {
   TableBody,
   CircularProgress,
   Container,
-  TablePagination,
+  TablePagination
 } from '@mui/material';
-import { BACKEND_API_URL } from '../../constants';
-import PlaylistLength from '../../models/PlaylistLength';
 
-export const PlaylistsShowLength = () => {
+import { BACKEND_API_URL } from '../../constants';
+import { Link } from 'react-router-dom';
+
+import SongsCount from '../../models/SongsCount';
+
+export const ArtistsShowSongsCount = () => {
   const [loading, setLoading] = useState(false);
-  const [playlistLengths, setPlaylistLengths] = useState<PlaylistLength[]>([]);
+  const [songsCounts, setSongsCounts] = useState<SongsCount[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
@@ -26,37 +29,34 @@ export const PlaylistsShowLength = () => {
     const url = new URL(window.location.href);
     const pageNumber = parseInt(url.searchParams.get('pageNumber') || '1');
     const pageSize = parseInt(url.searchParams.get('pageSize') || '10');
-
     setLoading(true);
-
-    fetch(`${BACKEND_API_URL}/playlists/length?pageNumber=${pageNumber}&pageSize=${pageSize}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setPlaylistLengths(data.data);
-        setTotalPages(data.totalPages);
-        setTotalRecords(data.totalRecords);
-        setLoading(false);
-        setPage(pageNumber);
-        setPageSize(pageSize);
-      })
-      .catch((error) => {
-        console.log(error);
-        setLoading(false);
-      });
+    try {
+      fetch(`${BACKEND_API_URL}/Artists/Songs?pageNumber=${pageNumber}&pageSize=${pageSize}`)
+        .then((response) => response.json())
+        .then((data) => {
+            
+          setSongsCounts(data.data);
+          setTotalPages(data.totalPages);
+          setTotalRecords(data.totalRecords);
+          setLoading(false);
+          setPage(pageNumber);
+          setPageSize(pageSize);
+        });
+    } catch (error) {
+      console.log(error);
+    }
   }, []);
 
   const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage + 1);
     updateUrlParams(newPage + 1, pageSize);
-    fetch(`${BACKEND_API_URL}/playlists/length?pageNumber=${newPage + 1}&pageSize=${pageSize}`)
+    fetch(`${BACKEND_API_URL}/Artists/Songs?pageNumber=${newPage + 1}&pageSize=${pageSize}`)
       .then((response) => response.json())
       .then((data) => {
-        setPlaylistLengths(data.data);
+        setSongsCounts(data.data);
         setTotalPages(data.totalPages);
         setTotalRecords(data.totalRecords);
-      })
-      .catch((error) => {
-        console.log(error);
+        setLoading(false);
       });
   };
 
@@ -65,15 +65,13 @@ export const PlaylistsShowLength = () => {
     setPageSize(newPageSize);
     setPage(1);
     updateUrlParams(1, newPageSize);
-    fetch(`${BACKEND_API_URL}/playlists/length?pageNumber=1&pageSize=${newPageSize}`)
+    fetch(`${BACKEND_API_URL}/Artists/Songs?pageNumber=1&pageSize=${newPageSize}`)
       .then((response) => response.json())
       .then((data) => {
-        setPlaylistLengths(data.data);
+        setSongsCounts(data.data);
         setTotalPages(data.totalPages);
         setTotalRecords(data.totalRecords);
-      })
-      .catch((error) => {
-        console.log(error);
+        setLoading(false);
       });
   };
 
@@ -86,29 +84,29 @@ export const PlaylistsShowLength = () => {
 
   return (
     <Container sx={{ padding: '2em' }}>
-      <h1>Playlist Lengths</h1>
+      <h1>Artists Songs Count</h1>
 
       {loading && <CircularProgress />}
-      {!loading && playlistLengths.length === 0 && <p>No playlist lengths found</p>}
-      {!loading && playlistLengths.length > 0 && (
+      {!loading && songsCounts.length === 0 && <p>No songs count found</p>}
+      {!loading && songsCounts.length > 0 && (
         <>
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>
                 <TableRow>
                   <TableCell>#</TableCell>
-                  <TableCell align="center">Playlist Name</TableCell>
-                  <TableCell align="center">Playlist Length</TableCell>
+                  <TableCell align="center">Artist Name</TableCell>
+                  <TableCell align="center">Songs Count</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {playlistLengths.map((playlistLength, index) => (
-                  <TableRow key={playlistLength.playlistId}>
+                {songsCounts.map((songsCount, index) => (
+                  <TableRow key={index}>
                     <TableCell component="th" scope="row">
                       {index + 1}
                     </TableCell>
-                    <TableCell align="center">{playlistLength.playlistName}</TableCell>
-                    <TableCell align="center">{playlistLength.length}</TableCell>
+                    <TableCell align="center">{songsCount.artistName}</TableCell>
+                    <TableCell align="center">{songsCount.songsCount}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -128,5 +126,3 @@ export const PlaylistsShowLength = () => {
     </Container>
   );
 };
-
-export default PlaylistsShowLength;

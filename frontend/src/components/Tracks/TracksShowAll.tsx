@@ -34,6 +34,7 @@ export const TracksShowAll = () => {
         const url = new URL(window.location.href);
         const pageNumber = parseInt(url.searchParams.get('pageNumber') || '1');
         const pageSize = parseInt(url.searchParams.get('pageSize') || '10');
+        setLoading(true);
         try {
             fetch(`${BACKEND_API_URL}/Tracks?pageNumber=${pageNumber}&pageSize=${pageSize}`)
                 .then((response) => response.json())
