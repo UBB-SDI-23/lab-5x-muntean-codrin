@@ -15,7 +15,7 @@ export const AppMenu = () => {
             <AppBar position="absolute" >
                 <Toolbar>
                     <Typography variant="h6" component="div" sx={{ mr: 5 }}>
-                        Music app
+                    <Link to="/">Music app</Link>
                     </Typography>
                     <Button
                         variant={path.startsWith("/artists") ? "outlined" : "text"}
