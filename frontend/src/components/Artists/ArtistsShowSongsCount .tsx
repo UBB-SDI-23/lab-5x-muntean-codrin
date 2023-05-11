@@ -9,7 +9,8 @@ import {
   TableBody,
   CircularProgress,
   Container,
-  TablePagination
+  TablePagination,
+  Pagination
 } from '@mui/material';
 
 import { BACKEND_API_URL } from '../../constants';
@@ -47,7 +48,7 @@ export const ArtistsShowSongsCount = () => {
     }
   }, []);
 
-  const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+  const handleChangePage = (event, newPage: number) => {
     setPage(newPage + 1);
     updateUrlParams(newPage + 1, pageSize);
     fetch(`${BACKEND_API_URL}/Artists/Songs?pageNumber=${newPage + 1}&pageSize=${pageSize}`)
@@ -112,15 +113,13 @@ export const ArtistsShowSongsCount = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[10, 25, 50]}
-            component="div"
-            count={totalRecords}
-            rowsPerPage={pageSize}
-            page={page - 1}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangePageSize}
-          />
+          <Pagination
+                        count={Math.ceil(totalRecords / pageSize)}
+                        page={page}
+                        onChange={handleChangePage}
+                        showFirstButton
+                        showLastButton
+                    />
         </>
       )}
     </Container>

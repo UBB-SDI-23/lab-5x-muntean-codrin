@@ -16,7 +16,8 @@ import {
     TableSortLabel,
     TextField,
     TablePagination,
-    Box
+    Box,
+    Pagination
 } from "@mui/material";
 
 import { Link } from "react-router-dom";
@@ -40,7 +41,7 @@ export const ArtistsShowAll = () => {
     const [totalPages, setTotalPages] = useState(0);
     const [totalRecords, setTotalRecords] = useState(0);
 
-    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+    const handleChangePage = (event, newPage: number) => {
         setPage(newPage + 1);
         updateUrlParams(newPage + 1, pageSize);
         setLoading(true);
@@ -227,14 +228,12 @@ export const ArtistsShowAll = () => {
                             ))}
                         </TableBody>
                     </Table>
-                    <TablePagination
-                        rowsPerPageOptions={[10, 25, 50]}
-                        component="div"
-                        count={totalRecords}
-                        rowsPerPage={pageSize}
-                        page={page - 1}
-                        onPageChange={handleChangePage}
-                        onRowsPerPageChange={handleChangePageSize}
+                    <Pagination
+                        count={Math.ceil(totalRecords / pageSize)}
+                        page={page}
+                        onChange={handleChangePage}
+                        showFirstButton
+                        showLastButton
                     />
                 </TableContainer>
             )}

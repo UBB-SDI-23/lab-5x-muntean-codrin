@@ -12,6 +12,7 @@ import {
     TablePagination,
     IconButton,
     Tooltip,
+    Pagination,
 } from '@mui/material';
 
 import ReadMoreIcon from "@mui/icons-material/ReadMore";
@@ -51,7 +52,7 @@ export const TracksShowAll = () => {
         }
     }, []);
 
-    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+    const handleChangePage = (event, newPage: number) => {
         setPage(newPage + 1);
         updateUrlParams(newPage + 1, pageSize);
         fetch(`${BACKEND_API_URL}/Tracks?pageNumber=${newPage + 1}&pageSize=${pageSize}`)
@@ -148,14 +149,12 @@ export const TracksShowAll = () => {
                             </TableBody>
                         </Table>
                     </TableContainer>
-                    <TablePagination
-                        rowsPerPageOptions={[10, 25, 50]}
-                        component="div"
-                        count={totalRecords}
-                        rowsPerPage={pageSize}
-                        page={page - 1}
-                        onPageChange={handleChangePage}
-                        onRowsPerPageChange={handleChangePageSize}
+                    <Pagination
+                        count={Math.ceil(totalRecords / pageSize)}
+                        page={page}
+                        onChange={handleChangePage}
+                        showFirstButton
+                        showLastButton
                     />
                 </>
             )}
