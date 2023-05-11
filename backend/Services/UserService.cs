@@ -68,11 +68,10 @@ namespace backend.Services
             //calculate entities
 
             int count = 0;
-            count += _databaseContext.Albums.Where(a => a.AddedBy == user.Id).Count();
-            count += _databaseContext.Artists.Where(a => a.AddedBy == user.Id).Count();
-            count += _databaseContext.Tracks.Where(a => a.AddedBy == user.Id).Count();
-            count += _databaseContext.Playlists.Where(a => a.AddedBy == user.Id).Count();
-            count += _databaseContext.TrackPlaylists.Where(a => a.AddedBy == user.Id).Count();
+            count += _databaseContext.Albums.Where(a => a.AddedBy == email).Count();
+            count += _databaseContext.Artists.Where(a => a.AddedBy == email).Count();
+            count += _databaseContext.Tracks.Where(a => a.AddedBy == email).Count();
+            count += _databaseContext.Playlists.Where(a => a.AddedBy == email).Count();
 
             var userExtended = new UserExtended(user, count);
             return userExtended;

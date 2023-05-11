@@ -40,22 +40,11 @@ export const ArtistsDetails = () => {
                         <ArrowBackIcon />
                     </IconButton>{" "}
                     <h1>Artist Details</h1>
-                    <p>artist name: {artist?.name}</p>
-                    <p>artist description: {artist?.description}</p>
-                    <p>artist website link: {artist?.websiteLink}</p>
-                    <p>artist debut year: {artist?.debutYear}</p>
-                    <p>artist profile picture url: {artist?.profilePictureUrl}</p>
-                    <p>Albums:</p>
-                    <ul>
-                        {artist?.albumList?.map((album, index) => (
-                            <CardContent key={album.id}>
-                                <li>Album details</li>
-                                <p>Name of album : {album?.title}</p>
-                                <p>Release date : {album?.releaseDate.toString()}</p>
-                                <p>Cover image url : {album?.coverImageUrl}</p>
-                            </CardContent>
-                        ))}
-                    </ul>
+                    <p>Artist name: {artist?.name}</p>
+                    <p>Artist description: {artist?.description}</p>
+                    <p>Artist website link: {artist?.websiteLink}</p>
+                    <p>Artist debut year: {artist?.debutYear}</p>
+                    <p>Artist profile picture url: {artist?.profilePictureUrl}</p>
                 </CardContent>
                 <CardActions>
                     <IconButton component={Link} sx={{ mr: 3 }} to={`/artists/${artistId}/edit`}>

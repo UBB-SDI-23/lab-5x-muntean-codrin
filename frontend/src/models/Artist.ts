@@ -8,4 +8,6 @@ export default interface Artist {
     debutYear: number;
     profilePictureUrl: string;
     albumList?: Album[];
+    addedBy: string;
+    albumsCount: number;
 }

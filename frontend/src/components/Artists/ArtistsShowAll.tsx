@@ -15,6 +15,8 @@ import {
     Button,
     TableSortLabel,
     TextField,
+    TablePagination,
+    Box
 } from "@mui/material";
 
 import { Link } from "react-router-dom";
@@ -33,18 +35,69 @@ export const ArtistsShowAll = () => {
     const [artists, setArtists] = useState<Artist[]>([]);
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
     const [yearFilter, setYearFilter] = useState("");
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalRecords, setTotalRecords] = useState(0);
+
+    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+        setPage(newPage + 1);
+        updateUrlParams(newPage + 1, pageSize);
+
+        fetch(`${BACKEND_API_URL}/artists?pageNumber=${newPage + 1}&pageSize=${pageSize}`)
+            .then((response) => response.json())
+            .then((data) => {
+                setArtists(data.data);
+                setTotalPages(data.totalPages);
+                setTotalRecords(data.totalRecords);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.log(error);
+                setLoading(false);
+            });
+    };
+
+    const handleChangePageSize = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newPageSize = parseInt(event.target.value);
+        setPageSize(newPageSize);
+        setPage(1);
+        updateUrlParams(1, newPageSize);
+
+        fetch(`${BACKEND_API_URL}/artists?pageNumber=1&pageSize=${newPageSize}`)
+            .then((response) => response.json())
+            .then((data) => {
+                setArtists(data.data);
+                setTotalPages(data.totalPages);
+                setTotalRecords(data.totalRecords);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.log(error);
+                setLoading(false);
+            });
+    };
+
+    const updateUrlParams = (pageNumber: number, pageSize: number) => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('pageNumber', pageNumber.toString());
+        url.searchParams.set('pageSize', pageSize.toString());
+        window.history.replaceState({}, '', url);
+    };
+
 
     const handleYearFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setYearFilter(event.target.value);
     };
-
     const handleYearFilterSubmit = () => {
         setLoading(true);
         try {
-            fetch(`${BACKEND_API_URL}/artists?year=${yearFilter}`)
+            fetch(`${BACKEND_API_URL}/artists?year=${yearFilter}&pageNumber=${page}&pageSize=${pageSize}`)
                 .then((response) => response.json())
                 .then((data) => {
-                    setArtists(data['data']);
+                    setArtists(data.data);
+                    setTotalPages(data.totalPages);
+                    setTotalRecords(data.totalRecords);
                     setLoading(false);
                 });
         } catch (error) {
@@ -55,18 +108,24 @@ export const ArtistsShowAll = () => {
     useEffect(() => {
         setLoading(true);
         try {
-            fetch(`${BACKEND_API_URL}/artists`)
+            const url = new URL(window.location.href);
+            const pageNumber = parseInt(url.searchParams.get('pageNumber') || '1');
+            const pageSize = parseInt(url.searchParams.get('pageSize') || '10');
+
+            fetch(`${BACKEND_API_URL}/artists?pageNumber=${pageNumber}&pageSize=${pageSize}`)
                 .then((response) => response.json())
                 .then((data) => {
-                    setArtists(data['data']);
+                    setArtists(data.data);
+                    setTotalPages(data.totalPages);
+                    setTotalRecords(data.totalRecords);
                     setLoading(false);
-                })
-        }
-        catch (error) {
+                    setPage(pageNumber);
+                    setPageSize(pageSize);
+                });
+        } catch (error) {
             console.log(error);
         }
-    }, [])
-
+    }, []);
     const handleSort = () => {
         const newDirection = sortDirection === "asc" ? "desc" : "asc";
         setSortDirection(newDirection);
@@ -112,13 +171,13 @@ export const ArtistsShowAll = () => {
             )}
             {!loading && artists.length > 0 && (
 
-                <TableContainer component={Paper}>
+                <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
                     <Table sx={{ minWidth: 650 }} aria-label="simple table">
                         <TableHead>
                             <TableRow>
                                 <TableCell>#</TableCell>
                                 <TableCell align="center">Name</TableCell>
-                                <TableCell align="center">Description</TableCell>
+                                <TableCell align="center">Desc</TableCell>
                                 <TableCell align="center">Website link</TableCell>
                                 <TableCell align="center">
                                     <TableSortLabel
@@ -130,14 +189,16 @@ export const ArtistsShowAll = () => {
                                     </TableSortLabel>
                                 </TableCell>
                                 <TableCell align="center">Profile Picture Url</TableCell>
-                                <TableCell align="center">Operations</TableCell>
+                                <TableCell align="center">Albums count</TableCell>
+                                <TableCell align="center">Added by</TableCell>
+                                <TableCell align="center">Details</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {artists.map((artist, index) => (
                                 <TableRow key={artist.id}>
                                     <TableCell component="th" scope="row">
-                                        {index + 1}
+                                        {artist.id}
                                     </TableCell>
                                     <TableCell component="th" scope="row">
                                         <Link to={`/artists/${artist.id}/details`} title={"View artist details"}>
@@ -148,6 +209,10 @@ export const ArtistsShowAll = () => {
                                     <TableCell align="right">{artist.websiteLink}</TableCell>
                                     <TableCell align="right">{artist.debutYear}</TableCell>
                                     <TableCell align="right">{artist.profilePictureUrl}</TableCell>
+                                    <TableCell align="right">{artist.albumsCount}</TableCell>
+                                    <TableCell align="right">
+                                        <Link to={`/user/${artist.addedBy.replace('.', ',')}`}>{artist.addedBy}</Link>
+                                    </TableCell>
                                     <TableCell align="right">
                                         <IconButton
                                             component={Link}
@@ -157,19 +222,20 @@ export const ArtistsShowAll = () => {
                                                 <ReadMoreIcon color="primary" />
                                             </Tooltip>
                                         </IconButton>
-
-                                        <IconButton component={Link} sx={{ mr: 3 }} to={`/artists/${artist.id}/edit`}>
-                                            <EditIcon />
-                                        </IconButton>
-
-                                        <IconButton component={Link} sx={{ mr: 3 }} to={`/artists/${artist.id}/delete`}>
-                                            <DeleteForeverIcon sx={{ color: "red" }} />
-                                        </IconButton>
                                     </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
+                    <TablePagination
+                        rowsPerPageOptions={[10, 25, 50]}
+                        component="div"
+                        count={totalRecords}
+                        rowsPerPage={pageSize}
+                        page={page - 1}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangePageSize}
+                    />
                 </TableContainer>
             )}
         </Container>
