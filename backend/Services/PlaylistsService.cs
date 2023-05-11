@@ -62,6 +62,7 @@ namespace backend.Services
         {
             Playlist playlist = new Playlist();
             playlist.Name = request.Name;
+            playlist.AddedBy = "";
             _databaseContext.Playlists.Add(playlist);
             _databaseContext.SaveChanges();
             return playlist;

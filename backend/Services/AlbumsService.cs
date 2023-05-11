@@ -54,7 +54,8 @@ namespace backend.Services
                 Title = request.Title,
                 ArtistId = request.ArtistId,
                 ReleaseDate = request.ReleaseDate,
-                CoverImageUrl = request.CoverImageUrl
+                CoverImageUrl = request.CoverImageUrl,
+                AddedBy = ""
             };
 
             _databaseContext.Albums.Add(album);
@@ -82,7 +83,6 @@ namespace backend.Services
             album.ArtistId = request.ArtistId;
             album.ReleaseDate = request.ReleaseDate;
             album.CoverImageUrl = request.CoverImageUrl;
-
             _databaseContext.Update(album);
             _databaseContext.SaveChanges();
             return album;

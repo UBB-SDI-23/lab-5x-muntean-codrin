@@ -20,6 +20,8 @@ import PlaylistDetails from './components/Playlists/PlaylistsDetails';
 import AlbumDelete from './components/Albums/AlbumsDelete';
 import TracksDelete, { TrackDelete } from './components/Tracks/TracksDelete';
 import { PlaylistDelete } from './components/Playlists/PlaylistsDelete';
+import PlaylistAdd from './components/Playlists/PlaylistAdd';
+import AlbumAdd from './components/Albums/AlbumAdd';
 
 function App() {
   return (
@@ -36,6 +38,7 @@ function App() {
           <Route path="/artists/:artistId/details" element={<ArtistsDetails />} />
 
           <Route path="/albums" element={<AlbumsShowAll />} />
+          <Route path="/albums/add" element={<AlbumAdd />} />
           <Route path="/albums/:albumId/details" element={<AlbumDetails />} />
           <Route path="/albums/:albumId/delete" element={<AlbumDelete />} />
 
@@ -44,6 +47,7 @@ function App() {
           <Route path="/tracks/:trackId/delete" element={<TrackDelete />} />
 
           <Route path="/playlists" element={<PlaylistsShowAll />} />
+          <Route path="/playlists/add" element={<PlaylistAdd />} />
           <Route path="/playlists/:playlistId/details" element={<PlaylistDetails />} />
           <Route path="/playlists/:playlistId/delete" element={<PlaylistDelete />} />
 

@@ -81,7 +81,8 @@ namespace backend.Services
                 Description = request.Description,
                 WebsiteLink = request.WebsiteLink,
                 DebutYear = request.DebutYear,
-                ProfilePictureUrl = request.ProfilePictureUrl
+                ProfilePictureUrl = request.ProfilePictureUrl,
+                AddedBy = ""
             };
             _databaseContext.Artists.Add(artist);
             _databaseContext.SaveChanges();
