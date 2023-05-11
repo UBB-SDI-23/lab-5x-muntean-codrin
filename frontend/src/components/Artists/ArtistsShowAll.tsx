@@ -44,7 +44,7 @@ export const ArtistsShowAll = () => {
             fetch(`${BACKEND_API_URL}/artists?year=${yearFilter}`)
                 .then((response) => response.json())
                 .then((data) => {
-                    setArtists(data);
+                    setArtists(data['data']);
                     setLoading(false);
                 });
         } catch (error) {
@@ -58,7 +58,7 @@ export const ArtistsShowAll = () => {
             fetch(`${BACKEND_API_URL}/artists`)
                 .then((response) => response.json())
                 .then((data) => {
-                    setArtists(data);
+                    setArtists(data['data']);
                     setLoading(false);
                 })
         }

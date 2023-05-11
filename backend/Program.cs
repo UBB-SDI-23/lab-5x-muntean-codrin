@@ -18,6 +18,15 @@ namespace backend
             ConfigurationManager configuration = builder.Configuration;
             // Add services to the container.
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: "enable-all",
+                                  builder =>
+                                  {
+                                      builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                                  });
+            });
+
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -88,6 +97,8 @@ namespace backend
             app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
+
+            app.UseCors("enable-all");
 
             app.UseAuthentication();
             app.UseAuthorization();
