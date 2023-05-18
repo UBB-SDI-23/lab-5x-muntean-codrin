@@ -29,6 +29,7 @@ import ArtistEdit from './components/Artists/ArtistsEdit';
 import { ArtistsShowSongsCount } from './components/Artists/ArtistsShowSongsCount ';
 import RegisterPage from './components/RegisterPage';
 import LoginPage from './components/LoginPage';
+import { UsersShowAll } from './components/Users/UsersShowAll';
 
 function App() {
   return (
@@ -66,6 +67,7 @@ function App() {
           <Route path="/artists/songs" element={<ArtistsShowSongsCount />} />
 
           <Route path="/user/:email" element={<UserProfilePage />} />
+          <Route path="/users" element={<UsersShowAll />} />
 
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />

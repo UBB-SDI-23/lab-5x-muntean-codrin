@@ -12,11 +12,12 @@ namespace backend
         public DbSet<Track> Tracks { get; set; }
         public DbSet<Playlist> Playlists { get; set; }
         public DbSet<TrackPlaylist> TrackPlaylists { get; set; }
+        public DbSet<Setting> Settings { get; set; }
 
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
         {
-            
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

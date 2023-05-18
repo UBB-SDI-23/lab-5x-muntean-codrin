@@ -149,5 +149,16 @@ namespace backend.Services
                 return "";
             }
         }
+
+        public bool Deleteplaylists(List<int> ids)
+        {
+            var playlists = _databaseContext.Playlists.Where(playlist => ids.Contains(playlist.Id)).ToList();
+            if (playlists.Count == 0)
+                return false;
+
+            _databaseContext.Playlists.RemoveRange(playlists);
+            _databaseContext.SaveChanges();
+            return true;
+        }
     }
 }

@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import {
-    TableContainer,
-    Paper,
-    Table,
-    TableHead,
-    TableRow,
-    TableCell,
-    TableBody,
-    CircularProgress,
-    Container,
-    TablePagination,
-    IconButton,
-    Tooltip,
-    Pagination,
+  TableContainer,
+  Paper,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  CircularProgress,
+  Container,
+  TablePagination,
+  IconButton,
+  Tooltip,
+  Pagination,
 } from '@mui/material';
 
 import ReadMoreIcon from "@mui/icons-material/ReadMore";
@@ -30,62 +30,84 @@ export const TracksShowAll = () => {
     const [pageSize, setPageSize] = useState(10);
     const [totalPages, setTotalPages] = useState(0);
     const [totalRecords, setTotalRecords] = useState(0);
-
+    const [userPageSize, setUserPageSize] = useState<number | null>(null);
+  
     useEffect(() => {
+      setLoading(true);
+      getUserPageSize();
+    }, []);
+  
+    const getUserPageSize = async () => {
+      try {
+        const response = await fetch(`${BACKEND_API_URL}/UserProfile/pagesize/sarah43_c118d0%40example.com`);
+        const pageSizeValue = await response.text();
+        setPageSize(parseInt(pageSizeValue));
+        setUserPageSize(parseInt(pageSizeValue));
         const url = new URL(window.location.href);
         const pageNumber = parseInt(url.searchParams.get('pageNumber') || '1');
-        const pageSize = parseInt(url.searchParams.get('pageSize') || '10');
-        setLoading(true);
+        setPage(pageNumber);
+  
         try {
-            fetch(`${BACKEND_API_URL}/Tracks?pageNumber=${pageNumber}&pageSize=${pageSize}`)
-                .then((response) => response.json())
-                .then((data) => {
-                    setTracks(data.data);
-                    setTotalPages(data.totalPages);
-                    setTotalRecords(data.totalRecords);
-                    setLoading(false);
-                    setPage(pageNumber);
-                    setPageSize(pageSize);
-                });
+          const tracksResponse = await fetch(`${BACKEND_API_URL}/Tracks?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+          const tracksData = await tracksResponse.json();
+          setTracks(tracksData.data);
+          setTotalPages(tracksData.totalPages);
+          setTotalRecords(tracksData.totalRecords);
+          setLoading(false);
         } catch (error) {
-            console.log(error);
+          console.log(error);
+          // Handle fetch error for tracks data
         }
-    }, []);
-
+      } catch (error) {
+        console.log(error);
+        // Handle error fetching user page size
+      }
+    };
+  
+    const fetchData = (pageNumber: number, pageSize: number) => {
+      fetch(`${BACKEND_API_URL}/Tracks?pageNumber=${pageNumber}&pageSize=${pageSize}`)
+        .then((response) => response.json())
+        .then((data) => {
+          setTracks(data.data);
+          setTotalPages(data.totalPages);
+          setTotalRecords(data.totalRecords);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.log(error);
+          // Handle fetch error for tracks data
+        });
+    };
+  
     const handleChangePage = (event, newPage: number) => {
-        setPage(newPage);
-        updateUrlParams(newPage, pageSize);
-        fetch(`${BACKEND_API_URL}/Tracks?pageNumber=${newPage}&pageSize=${pageSize}`)
-            .then((response) => response.json())
-            .then((data) => {
-                setTracks(data.data);
-                setTotalPages(data.totalPages);
-                setTotalRecords(data.totalRecords);
-                setLoading(false);
-            });
+      setPage(newPage);
+      updateUrlParams(newPage, pageSize);
+      fetchData(newPage, pageSize);
     };
-
+  
     const handleChangePageSize = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newPageSize = parseInt(event.target.value);
-        setPageSize(newPageSize);
-        setPage(1);
-        updateUrlParams(1, newPageSize);
-        fetch(`${BACKEND_API_URL}/Tracks?pageNumber=1&pageSize=${newPageSize}`)
-            .then((response) => response.json())
-            .then((data) => {
-                setTracks(data.data);
-                setTotalPages(data.totalPages);
-                setTotalRecords(data.totalRecords);
-                setLoading(false);
-            });
+      const newPageSize = parseInt(event.target.value);
+      setPageSize(newPageSize);
+      setPage(1);
+      updateUrlParams(1, newPageSize);
+      fetchData(1, newPageSize);
     };
-
+  
     const updateUrlParams = (pageNumber: number, pageSize: number) => {
-        const url = new URL(window.location.href);
-        url.searchParams.set('pageNumber', pageNumber.toString());
-        url.searchParams.set('pageSize', pageSize.toString());
-        window.history.replaceState({}, '', url);
+      const url = new URL(window.location.href);
+      url.searchParams.set('pageNumber', pageNumber.toString());
+      url.searchParams.set('pageSize', pageSize.toString());
+      window.history.replaceState({}, '', url);
     };
+  
+    useEffect(() => {
+      if (userPageSize !== null && userPageSize !== pageSize) {
+        setPageSize(userPageSize);
+        setPage(1);
+        updateUrlParams(1, userPageSize);
+        fetchData(1, userPageSize);
+      }
+    }, [userPageSize]);
 
     return (
         <Container sx={{ padding: '2em' }}>

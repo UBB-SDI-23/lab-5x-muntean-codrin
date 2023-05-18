@@ -90,5 +90,13 @@ namespace backend.Controllers
                 return NotFound();
             return Ok();
         }
+
+        [HttpPost("BulkDelete")]
+        [Authorize(Roles = "Admin")]
+        public ActionResult<bool> BulkDeleteAlbums([FromBody] List<int> ids)
+        {
+            bool result = _albumService.DeleteAlbums(ids);
+            return Ok(result);
+        }
     }
 }

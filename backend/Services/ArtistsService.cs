@@ -115,6 +115,17 @@ namespace backend.Services
             return true;
         }
 
+        public bool DeleteArtists(List<int> ids)
+        {
+            var artists = _databaseContext.Artists.Where(artist => ids.Contains(artist.Id)).ToList();
+            if (artists.Count == 0)
+                return false;
+
+            _databaseContext.Artists.RemoveRange(artists);
+            _databaseContext.SaveChanges();
+            return true;
+        }
+
         public List<Artist> AddArtists(List<NewArtistRequest> requests)
         {
             var artists = new List<Artist>();
@@ -135,6 +146,7 @@ namespace backend.Services
             _databaseContext.SaveChanges();
             return artists;
         }
+
 
         public List<ArtistSongs> GetArtistsSongs(PaginationFilter filter)
         {

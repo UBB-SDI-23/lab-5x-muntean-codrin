@@ -50,6 +50,12 @@ export const AppHome = () => {
                         <Typography variant="h5" component="p" gutterBottom>
                             Role: {role}
                         </Typography>
+                        {(role === "Admin") && (
+                            <Button component={Link} to="/users" variant="contained">
+                                All Users
+                            </Button>
+
+                        )}
                         <Button variant="contained" onClick={handleLogout}>
                             Logout
                         </Button>

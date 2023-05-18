@@ -112,6 +112,14 @@ namespace backend.Controllers
             return Ok(artist);
         }
 
+        [HttpPost("BulkDelete")]
+        [Authorize(Roles ="Admin")]
+        public ActionResult<bool> BulkDeleteArtist([FromBody] List<int> ids)
+        {
+            bool result = _artistsService.DeleteArtists(ids);
+            return Ok(result);
+        }
+
         [HttpGet("Songs")]
         public ActionResult<List<ArtistSongs>> GetArtistsSongs([FromQuery] PaginationFilter filter)
         {

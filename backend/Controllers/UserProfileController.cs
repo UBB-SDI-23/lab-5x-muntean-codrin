@@ -43,7 +43,23 @@ namespace backend.Controllers
             return Ok(user);
         }
 
+        [HttpGet("pagesize/{email}")]
+        public IActionResult GetUserPageSize(string email)
+        {
+            var user = _userService.GetUserByEmail(email);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            if (user.PageSize != 0)
+                return Ok(user.PageSize);
+            else
+                return Ok(_userService.GetDefaultPageSize());
+           
+        }
+
         [HttpPost("role")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> SetUserRole(string user, string role)
         {
             if (await _userService.UpdateUserRole(user, role))

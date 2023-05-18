@@ -11,8 +11,10 @@
         public int EntititesAdded { get; set; }
         public string Role { get; set; }
 
+        public int PageSize { get; set; }
 
-        public UserExtended(User user, int entitiesAdded, string role="")
+
+        public UserExtended(User user, int entitiesAdded, string role = "")
         {
             FirstName = user.FirstName;
             LastName = user.LastName;
@@ -21,7 +23,11 @@
             DateOfBirth = user.DateOfBirth;
             Email = user.Email;
             EntititesAdded = entitiesAdded;
-            Role = role;
+            if (role == null)
+                Role = "";
+            else
+                Role = role;
+            PageSize = user.PageSize;
         }
     }
 }

@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import {
-    TableContainer,
-    Paper,
-    Table,
-    TableHead,
-    TableRow,
-    TableCell,
-    TableBody,
-    CircularProgress,
-    Container,
-    TablePagination,
-    IconButton,
-    Tooltip,
-    Pagination,
+  TableContainer,
+  Paper,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  CircularProgress,
+  Container,
+  TablePagination,
+  IconButton,
+  Tooltip,
+  Pagination,
 } from '@mui/material';
 
 import ReadMoreIcon from "@mui/icons-material/ReadMore";
@@ -24,69 +24,105 @@ import { BACKEND_API_URL } from '../../constants';
 import Album from '../../models/Album';
 
 export const AlbumsShowAll = () => {
-    const [loading, setLoading] = useState(false);
-    const [albums, setAlbums] = useState<Album[]>([]);
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const [totalPages, setTotalPages] = useState(0);
-    const [totalRecords, setTotalRecords] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalRecords, setTotalRecords] = useState(0);
 
-    useEffect(() => {
+  const getUserPageSize = async () => {
+    try {
+      const response = await fetch(`${BACKEND_API_URL}/UserProfile/pagesize/sarah43_c118d0%40example.com`);
+      const pageSizeValue = await response.text();
+      setPageSize(parseInt(pageSizeValue));
+    } catch (error) {
+      console.log(error);
+      // Handle error fetching user page size
+    }
+  };
+
+  useEffect(() => {
+    setLoading(true);
+  
+    const getUserPageSize = async () => {
+      try {
+        const response = await fetch(`${BACKEND_API_URL}/UserProfile/pagesize/sarah43_c118d0%40example.com`);
+        const pageSizeValue = await response.text();
+        setPageSize(parseInt(pageSizeValue));
+  
         const url = new URL(window.location.href);
-        const pageNumber = parseInt(url.searchParams.get('pageNumber') || '1');
-        const pageSize = parseInt(url.searchParams.get('pageSize') || '10');
-        setLoading(true);
+        let pageNumber = parseInt(url.searchParams.get('pageNumber') || '1');
+        let pageSize = parseInt(url.searchParams.get('pageSize') || pageSizeValue);
+  
+        // Check if the pageNumber is less than 1, set it to 1
+        pageNumber = Math.max(pageNumber, 1);
+  
+        setPage(pageNumber);
+  
         try {
-            fetch(`${BACKEND_API_URL}/Albums?pageNumber=${pageNumber}&pageSize=${pageSize}`)
-                .then((response) => response.json())
-                .then((data) => {
-                    setAlbums(data.data);
-                    setTotalPages(data.totalPages);
-                    setTotalRecords(data.totalRecords);
-                    setLoading(false);
-                    setPage(pageNumber);
-                    setPageSize(pageSize);
-                });
+          const albumsResponse = await fetch(`${BACKEND_API_URL}/Albums?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+          const albumsData = await albumsResponse.json();
+          setAlbums(albumsData.data);
+          setTotalPages(albumsData.totalPages);
+          setTotalRecords(albumsData.totalRecords);
+          setLoading(false);
         } catch (error) {
-            console.log(error);
+          console.log(error);
+          // Handle fetch error for albums data
         }
-    }, []);
-
-    const handleChangePage = (event, newPage: number) => {
-        setPage(newPage);
-        updateUrlParams(newPage, pageSize);
-        fetch(`${BACKEND_API_URL}/Albums?pageNumber=${newPage}&pageSize=${pageSize}`)
-            .then((response) => response.json())
-            .then((data) => {
-                setAlbums(data.data);
-                setTotalPages(data.totalPages);
-                setTotalRecords(data.totalRecords);
-                setLoading(false);
-            });
+  
+      } catch (error) {
+        console.log(error);
+        // Handle error fetching user page size
+      }
     };
+  
+    getUserPageSize();
+  }, []);
 
-    const handleChangePageSize = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newPageSize = parseInt(event.target.value);
-        setPageSize(newPageSize);
-        setPage(1);
-        updateUrlParams(1, newPageSize);
-        fetch(`${BACKEND_API_URL}/Albums?pageNumber=1&pageSize=${newPageSize}`)
-            .then((response) => response.json())
-            .then((data) => {
-                setAlbums(data.data);
-                setTotalPages(data.totalPages);
-                setTotalRecords(data.totalRecords);
-                setLoading(false);
-            });
-    };
+  const handleChangePage = async (event, newPage: number) => {
+    setPage(newPage);
+    updateUrlParams(newPage, pageSize);
+  
+    try {
+      const response = await fetch(`${BACKEND_API_URL}/Albums?pageNumber=${newPage}&pageSize=${pageSize}`);
+      const data = await response.json();
+      setAlbums(data.data);
+      setTotalPages(data.totalPages);
+      setTotalRecords(data.totalRecords);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      // Handle fetch error for albums data
+    }
+  };
+  
+  const handleChangePageSize = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newPageSize = parseInt(event.target.value);
+    setPageSize(newPageSize);
+    setPage(1);
+    updateUrlParams(1, newPageSize);
+  
+    try {
+      const response = await fetch(`${BACKEND_API_URL}/Albums?pageNumber=1&pageSize=${newPageSize}`);
+      const data = await response.json();
+      setAlbums(data.data);
+      setTotalPages(data.totalPages);
+      setTotalRecords(data.totalRecords);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      // Handle fetch error for albums data
+    }
+  };
 
-    const updateUrlParams = (pageNumber: number, pageSize: number) => {
-        const url = new URL(window.location.href);
-        url.searchParams.set('pageNumber', pageNumber.toString());
-        url.searchParams.set('pageSize', pageSize.toString());
-        window.history.replaceState({}, '', url);
-    };
-
+  const updateUrlParams = (pageNumber: number, pageSize: number) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('pageNumber', pageNumber.toString());
+    url.searchParams.set('pageSize', pageSize.toString());
+    window.history.replaceState({}, '', url);
+  };
 
     return (
         <Container sx={{ padding: '2em' }}>

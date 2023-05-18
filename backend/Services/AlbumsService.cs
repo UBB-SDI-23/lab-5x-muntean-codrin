@@ -109,6 +109,17 @@ namespace backend.Services
                 return "";
             }
         }
+
+        public bool DeleteAlbums(List<int> ids)
+        {
+            var albums = _databaseContext.Albums.Where(album => ids.Contains(album.Id)).ToList();
+            if (albums.Count == 0)
+                return false;
+
+            _databaseContext.Albums.RemoveRange(albums);
+            _databaseContext.SaveChanges();
+            return true;
+        }
     }
 
     

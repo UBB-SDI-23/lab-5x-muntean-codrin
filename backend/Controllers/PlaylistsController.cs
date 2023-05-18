@@ -139,5 +139,14 @@ namespace backend.Controllers
 
             return Ok(pagedReponse);
         }
+
+
+        [HttpPost("BulkDelete")]
+        [Authorize(Roles = "Admin")]
+        public ActionResult<bool> BulkDeleteAlbums([FromBody] List<int> ids)
+        {
+            bool result = _playlistService.Deleteplaylists(ids);
+            return Ok(result);
+        }
     }
 }

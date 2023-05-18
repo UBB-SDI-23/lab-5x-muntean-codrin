@@ -103,6 +103,17 @@ namespace backend.Services
             }
         }
 
+        public bool DeleteTracks(List<int> ids)
+        {
+            var tracks = _databaseContext.Tracks.Where(tracks => ids.Contains(tracks.Id)).ToList();
+            if (tracks.Count == 0)
+                return false;
+
+            _databaseContext.Tracks.RemoveRange(tracks);
+            _databaseContext.SaveChanges();
+            return true;
+        }
+
 
     }
 }

@@ -27,15 +27,30 @@ export const PlaylistsShowAll = () => {
     const [loading, setLoading] = useState(false);
     const [playlists, setPlaylists] = useState<Playlist[]>([]);
     const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
+    const [pageSize, setPageSize] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [totalRecords, setTotalRecords] = useState(0);
+
+    const getUserPageSize = async () => {
+        try {
+            const response = await fetch(`${BACKEND_API_URL}/UserProfile/pagesize/sarah43_c118d0%40example.com`);
+            const pageSizeValue = await response.text();
+            setPageSize(parseInt(pageSizeValue));
+        } catch (error) {
+            console.log(error);
+            // Handle error fetching user page size
+        }
+    };
+
+    useEffect(() => {
+        getUserPageSize();
+    }, []);
 
     useEffect(() => {
         const url = new URL(window.location.href);
         const pageNumber = parseInt(url.searchParams.get('pageNumber') || '1');
-        const pageSize = parseInt(url.searchParams.get('pageSize') || '10');
         setLoading(true);
+        getUserPageSize();
         try {
             fetch(`${BACKEND_API_URL}/Playlists?pageNumber=${pageNumber}&pageSize=${pageSize}`)
                 .then((response) => response.json())
@@ -45,12 +60,11 @@ export const PlaylistsShowAll = () => {
                     setTotalRecords(data.totalRecords);
                     setLoading(false);
                     setPage(pageNumber);
-                    setPageSize(pageSize);
                 });
         } catch (error) {
             console.log(error);
         }
-    }, []);
+    }, [pageSize]);
 
     const handleChangePage = (event, newPage: number) => {
         setPage(newPage);

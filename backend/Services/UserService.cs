@@ -80,7 +80,7 @@ namespace backend.Services
             //count += _databaseContext.Tracks.Where(a => a.AddedBy == email).Count();
             //count += _databaseContext.Playlists.Where(a => a.AddedBy == email).Count();
 
-            var userExtended = new UserExtended(user, count, _databaseContext.Roles.FirstOrDefault(r => _databaseContext.UserRoles.Any(ur => ur.UserId == user.Id && ur.RoleId == r.Id)).Name);
+            var userExtended = new UserExtended(user, count, _databaseContext.Roles.FirstOrDefault(r => _databaseContext.UserRoles.Any(ur => ur.UserId == user.Id && ur.RoleId == r.Id))?.Name);
             return userExtended;
 
         }
@@ -98,19 +98,28 @@ namespace backend.Services
 
         public async Task<bool> UpdateUserRole(string email, string role)
         {
-            if (role != "Admin" || role != "Moderator" || role != "User") ;
+            if (role != "Admin" && role != "Moderator" && role != "User")
+                return false;
             var user = _databaseContext.Users.FirstOrDefault(u => u.UserName == email);
             if (user == null) return false;
-            bool result;
             if (role == "User")
             {
-                result = (await _userManager.RemoveFromRolesAsync(user, new List<string> { "Admin", "Moderator" })).Succeeded;
-                return result;
+                _databaseContext.UserRoles.RemoveRange(_databaseContext.UserRoles.Where(ur => ur.UserId == user.Id));
+                await _databaseContext.SaveChangesAsync();
+                return true;
             }
 
-            result = (await _userManager.RemoveFromRolesAsync(user, new List<string> { "Admin", "Moderator" })).Succeeded;
-            result = (await _userManager.AddToRoleAsync(user, role)).Succeeded;
-            return result;
+            var userRoles = _databaseContext.UserRoles.Where(ur => ur.UserId == user.Id);
+            _databaseContext.UserRoles.RemoveRange(userRoles);
+            await _databaseContext.SaveChangesAsync();
+            await _userManager.AddToRoleAsync(user, role);
+            return true;
+        }
+
+        public int GetDefaultPageSize()
+        {
+            var pageSize = _databaseContext.Settings.FirstOrDefault(s => s.Id == "pageSize").Value;
+            return pageSize == null ? 10 : int.Parse(pageSize);
         }
     }
 }

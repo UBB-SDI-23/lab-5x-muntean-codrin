@@ -11,6 +11,8 @@ namespace backend.Models
         public string Gender { get; set; }
         public DateTime DateOfBirth { get; set; }
 
+        public int PageSize { get; set; }
+
         public string? ConfirmationCode { get; set; }
         public DateTime? ConfirmationCodeExpiration { get; set; }
 
