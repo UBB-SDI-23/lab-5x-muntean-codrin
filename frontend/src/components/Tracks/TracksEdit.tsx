@@ -3,6 +3,7 @@ import { Container, TextField, Button } from "@mui/material";
 import axios from "axios";
 import { BACKEND_API_URL } from "../../constants";
 import { useNavigate, useParams } from "react-router-dom";
+import { checkLoggedIn, getEmail, getRole } from "../authService";
 
 const TrackEdit = () => {
   const { trackId } = useParams();
@@ -15,8 +16,15 @@ const TrackEdit = () => {
   });
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [email, setEmail] = useState(null);
+  const [role, setRole] = useState(null);
+  const [addedBy, setAddedBy] = useState("");
 
   useEffect(() => {
+    setIsLoggedIn(checkLoggedIn());
+    setEmail(getEmail());
+    setRole(getRole());
     // Fetch track data from backend and set the initial values
     const fetchTrack = async () => {
       try {
@@ -29,6 +37,7 @@ const TrackEdit = () => {
           milliseconds: trackData.milliseconds.toString(),
           releaseDate: trackData.releaseDate.split("T")[0],
         });
+        setAddedBy(trackData.addedBy);
       } catch (error) {
         console.log(error);
         // Handle error
@@ -77,7 +86,11 @@ const TrackEdit = () => {
     }
 
     try {
-      const response = await axios.put(`${BACKEND_API_URL}/tracks/${trackId}`, trackData);
+      const token = localStorage.getItem("token");
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+      const response = await axios.put(`${BACKEND_API_URL}/tracks/${trackId}`, trackData, {headers: headers});
       navigate("/tracks");
       // Handle success or navigate to another page
     } catch (error) {
@@ -95,6 +108,10 @@ const TrackEdit = () => {
 
   return (
     <Container>
+      {!isLoggedIn && (<p>Log in to access this page</p>)}
+      {isLoggedIn && !(addedBy === email || role === "Admin" || role == "Moderator") && (<p>You dont have permission to edit this.</p>)}
+      {isLoggedIn && (addedBy === email || role === "Admin" || role == "Moderator") &&  (
+        <>
       <h1>Edit Track</h1>
       <form onSubmit={handleSubmit}>
         <TextField
@@ -146,6 +163,7 @@ const TrackEdit = () => {
         <br />
         <Button type="submit">Save Changes</Button>
       </form>
+      </>)}
     </Container>
   );
 };

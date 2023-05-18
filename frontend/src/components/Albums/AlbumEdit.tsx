@@ -3,6 +3,7 @@ import { Container, TextField, Button } from "@mui/material";
 import axios from "axios";
 import { BACKEND_API_URL } from "../../constants";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { checkLoggedIn, getEmail, getRole } from "../authService";
 
 const AlbumEdit = () => {
     const { albumId } = useParams();
@@ -14,9 +15,17 @@ const AlbumEdit = () => {
     });
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [email, setEmail] = useState(null);
+    const [role, setRole] = useState(null);
+    const [addedBy, setAddedBy] = useState("");
 
     useEffect(() => {
+        setIsLoggedIn(checkLoggedIn());
+        setEmail(getEmail());
+        setRole(getRole());
         fetchAlbumData();
+
     }, []);
 
     const fetchAlbumData = async () => {
@@ -29,6 +38,7 @@ const AlbumEdit = () => {
                 releaseDate,
                 coverImageUrl,
             });
+            setAddedBy(response.data.addedBy)
         } catch (error) {
             console.log(error);
             // Handle error
@@ -71,7 +81,11 @@ const AlbumEdit = () => {
         }
 
         try {
-            const response = await axios.put(`${BACKEND_API_URL}/albums/${albumId}`, albumData);
+            const token = localStorage.getItem("token");
+            const headers = {
+                Authorization: `Bearer ${token}`,
+            };
+            const response = await axios.put(`${BACKEND_API_URL}/albums/${albumId}`, albumData, {headers: headers});
             navigate("/albums");
             // Handle success or navigate to another page
         } catch (error) {
@@ -89,50 +103,55 @@ const AlbumEdit = () => {
 
     return (
         <Container>
-            <h1>Edit Album</h1>
-            <form onSubmit={handleSubmit}>
-                <TextField
-                    label="Album Title"
-                    name="title"
-                    value={albumData.title}
-                    onChange={handleInputChange}
-                    error={!!errors.title}
-                    helperText={errors.title}
-                    sx={{ mb: 2 }}
-                />
-                <br />
-                <TextField
-                    label="Artist ID"
-                    name="artistId"
-                    value={albumData.artistId}
-                    onChange={handleInputChange}
-                    error={!!errors.artistId}
-                    helperText={errors.artistId}
-                    sx={{ mb: 2 }}
-                />
-                <br />
-                <TextField
-                    type="date"
-                    label="Release Date"
-                    name="releaseDate"
-                    value={albumData.releaseDate}
-                    onChange={handleInputChange}
-                    error={!!errors.releaseDate}
-                    helperText={errors.releaseDate}
-                    sx={{ mb: 2 }}
-                />        <br />
-                <TextField
-                    label="Cover Image URL"
-                    name="coverImageUrl"
-                    value={albumData.coverImageUrl}
-                    onChange={handleInputChange}
-                    error={!!errors.coverImageUrl}
-                    helperText={errors.coverImageUrl}
-                    sx={{ mb: 2 }}
-                />
-                <br />
-                <Button type="submit">Save Changes</Button>
-            </form>
+            {!isLoggedIn && (<p>Log in to access this page</p>)}
+            {isLoggedIn && !(addedBy === email || role === "Admin" || role == "Moderator") && (<p>You dont have permission to edit this.</p>)}
+            {isLoggedIn && (addedBy === email || role === "Admin" || role == "Moderator") && (
+                <>
+                    <h1>Edit Album</h1>
+                    <form onSubmit={handleSubmit}>
+                        <TextField
+                            label="Album Title"
+                            name="title"
+                            value={albumData.title}
+                            onChange={handleInputChange}
+                            error={!!errors.title}
+                            helperText={errors.title}
+                            sx={{ mb: 2 }}
+                        />
+                        <br />
+                        <TextField
+                            label="Artist ID"
+                            name="artistId"
+                            value={albumData.artistId}
+                            onChange={handleInputChange}
+                            error={!!errors.artistId}
+                            helperText={errors.artistId}
+                            sx={{ mb: 2 }}
+                        />
+                        <br />
+                        <TextField
+                            type="date"
+                            label="Release Date"
+                            name="releaseDate"
+                            value={albumData.releaseDate}
+                            onChange={handleInputChange}
+                            error={!!errors.releaseDate}
+                            helperText={errors.releaseDate}
+                            sx={{ mb: 2 }}
+                        />        <br />
+                        <TextField
+                            label="Cover Image URL"
+                            name="coverImageUrl"
+                            value={albumData.coverImageUrl}
+                            onChange={handleInputChange}
+                            error={!!errors.coverImageUrl}
+                            helperText={errors.coverImageUrl}
+                            sx={{ mb: 2 }}
+                        />
+                        <br />
+                        <Button type="submit">Save Changes</Button>
+                    </form>
+                </>)}
         </Container>
     );
 };

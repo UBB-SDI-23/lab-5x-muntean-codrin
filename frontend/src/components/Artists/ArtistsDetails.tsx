@@ -8,14 +8,21 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Artist from "../../models/Artist";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from '@mui/icons-material/Edit';
+import { checkLoggedIn, getEmail, getRole } from "../authService";
 
 
 export const ArtistsDetails = () => {
     const { artistId } = useParams();
     const [artist, setArtist] = useState<Artist>();
     const [loading, setLoading] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [email, setEmail] = useState(null);
+    const [role, setRole] = useState(null);
 
     useEffect(() => {
+        setIsLoggedIn(checkLoggedIn());
+        setEmail(getEmail());
+        setRole(getRole());
         const url = `${BACKEND_API_URL}/artists/${artistId}`
         const axiosArtist = async () => {
             setLoading(true);
@@ -46,6 +53,7 @@ export const ArtistsDetails = () => {
                     <p>Artist debut year: {artist?.debutYear}</p>
                     <p>Artist profile picture url: {artist?.profilePictureUrl}</p>
                 </CardContent>
+                {isLoggedIn && (artist?.addedBy === email || role === "Admin" || role == "Moderator") &&  (
                 <CardActions>
                     <IconButton component={Link} sx={{ mr: 3 }} to={`/artists/${artistId}/edit`}>
                         <EditIcon />
@@ -54,7 +62,7 @@ export const ArtistsDetails = () => {
                     <IconButton component={Link} sx={{ mr: 3 }} to={`/artists/${artistId}/delete`}>
                         <DeleteForeverIcon sx={{ color: "red" }} />
                     </IconButton>
-                </CardActions>
+                </CardActions>)}
             </Card>
         </Container>
     );

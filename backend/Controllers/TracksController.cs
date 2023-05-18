@@ -4,7 +4,9 @@ using backend.Models.Extended;
 using backend.Models.Request;
 using backend.Models.Response;
 using backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace backend.Controllers
 {
@@ -37,7 +39,7 @@ namespace backend.Controllers
         public ActionResult<Track> GetTrack(int id)
         {
             var track = _tracksService.GetById(id);
-            if(track == null)
+            if (track == null)
             {
                 return NotFound();
             }
@@ -45,9 +47,11 @@ namespace backend.Controllers
         }
 
         [HttpPost()]
+        [Authorize]
         public ActionResult<Track> PostTrack([FromBody] NewTrackRequest request)
         {
-            var track = _tracksService.AddTrack(request);
+            var email = User.FindFirstValue("Email");
+            var track = _tracksService.AddTrack(request, email);
             if (track == null)
                 return NotFound();
             return Ok(track);
@@ -57,6 +61,14 @@ namespace backend.Controllers
         [HttpPut("{id}")]
         public ActionResult<Track> PutTrack(int id, [FromBody] NewTrackRequest request)
         {
+            if (!User.Identity.IsAuthenticated)
+                return Unauthorized();
+            var email = User.FindFirstValue("Email");
+            var role = User.FindFirstValue(ClaimTypes.Role) == null ? "" : User.FindFirstValue(ClaimTypes.Role);
+            if (!(role == "Admin" || role == "Moderator" || _tracksService.GetUserOfItem(id) == email))
+                return Unauthorized();
+
+
             var track = _tracksService.UpdateTrack(id, request);
             if (track == null)
                 return NotFound();
@@ -66,6 +78,13 @@ namespace backend.Controllers
         [HttpDelete("{id}")]
         public ActionResult DeleteTrack(int id)
         {
+            if (!User.Identity.IsAuthenticated)
+                return Unauthorized();
+            var email = User.FindFirstValue("Email");
+            var role = User.FindFirstValue(ClaimTypes.Role) == null ? "" : User.FindFirstValue(ClaimTypes.Role);
+            if (!(role == "Admin" || role == "Moderator" || _tracksService.GetUserOfItem(id) == email))
+                return Unauthorized();
+
             var deleted = _tracksService.DeleteTrack(id);
             if (deleted == false)
                 return NotFound();

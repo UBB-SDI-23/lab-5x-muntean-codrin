@@ -9,13 +9,20 @@ import Artist from "../../models/Artist";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from '@mui/icons-material/Edit';
 import Track from "../../models/Track";
+import { checkLoggedIn, getEmail, getRole } from "../authService";
 
 export const TrackDetails = () => {
     const { trackId } = useParams();
     const [track, setTrack] = useState<Track>();
     const [loading, setLoading] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [email, setEmail] = useState(null);
+    const [role, setRole] = useState(null);
   
     useEffect(() => {
+      setIsLoggedIn(checkLoggedIn());
+      setEmail(getEmail());
+      setRole(getRole());
       const url = `${BACKEND_API_URL}/tracks/${trackId}`;
       const fetchTrack = async () => {
         setLoading(true);
@@ -54,6 +61,7 @@ export const TrackDetails = () => {
               )}
             </p>
           </CardContent>
+          {isLoggedIn && (track?.addedBy === email || role === "Admin" || role == "Moderator") &&  (
           <CardActions>
             <IconButton
               component={Link}
@@ -71,6 +79,7 @@ export const TrackDetails = () => {
               <DeleteForeverIcon sx={{ color: "red" }} />
             </IconButton>
           </CardActions>
+          )};
         </Card>
       </Container>
     );

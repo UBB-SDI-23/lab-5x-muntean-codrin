@@ -7,9 +7,11 @@ using backend.Models.Response;
 using backend.Models.Statistics;
 using backend.Services;
 using backend.Wrappers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace backend.Controllers
 {
@@ -61,15 +63,25 @@ namespace backend.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public ActionResult<Artist> PostArtist([FromBody] NewArtistRequest request)
         {
-            Artist artist = _artistsService.AddArtist(request);
+            var email = User.FindFirstValue("Email");
+            Artist artist = _artistsService.AddArtist(request, email);
             return Ok(artist);
         }
 
         [HttpPut("{id}")]
+
         public ActionResult<Artist> PutArtist(int id, [FromBody] NewArtistRequest request)
         {
+            if (!User.Identity.IsAuthenticated)
+                return Unauthorized();
+            var email = User.FindFirstValue("Email");
+            var role = User.FindFirstValue(ClaimTypes.Role) == null ? "" : User.FindFirstValue(ClaimTypes.Role);
+            if (!(role == "Admin" || role == "Moderator" || _artistsService.GetUserOfItem(id) == email))
+                return Unauthorized();
+
             Artist artist = _artistsService.UpdateArtist(id, request);
             if (artist == null)
                 return NotFound();
@@ -79,6 +91,13 @@ namespace backend.Controllers
         [HttpDelete("{id}")]
         public ActionResult DeleteArtist(int id)
         {
+            if (!User.Identity.IsAuthenticated)
+                return Unauthorized();
+            var email = User.FindFirstValue("Email");
+            var role = User.FindFirstValue(ClaimTypes.Role) == null ? "" : User.FindFirstValue(ClaimTypes.Role);
+            if (!(role == "Admin" || role == "Moderator" || _artistsService.GetUserOfItem(id) == email))
+                return Unauthorized();
+
             var deleted = _artistsService.DeleteArtist(id);
             if(deleted)
                 return Ok();
@@ -86,6 +105,7 @@ namespace backend.Controllers
         }
 
         [HttpPost("BulkAdd")]
+        [Authorize]
         public ActionResult<List<Artist>> BulkPostArtist([FromBody] List<NewArtistRequest> requests)
         {
             List<Artist> artist = _artistsService.AddArtists(requests);

@@ -4,7 +4,9 @@ using backend.Models.Extended;
 using backend.Models.Request;
 using backend.Models.Response;
 using backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace backend.Controllers
 {
@@ -47,9 +49,11 @@ namespace backend.Controllers
         }
 
         [HttpPost()]
+        [Authorize]
         public ActionResult<Album> PostAlbum([FromBody] NewAlbumRequest request)
         {
-            var album = _albumService.AddAlbum(request);
+            var email = User.FindFirstValue("Email");
+            var album = _albumService.AddAlbum(request, email);
             if (album == null)
                 return NotFound();
             return Ok(album);
@@ -58,6 +62,13 @@ namespace backend.Controllers
         [HttpPut("{id}")]
         public ActionResult<Album> PutAlbum(int id, [FromBody] NewAlbumRequest request)
         {
+            if (!User.Identity.IsAuthenticated)
+                return Unauthorized();
+            var email = User.FindFirstValue("Email");
+            var role = User.FindFirstValue(ClaimTypes.Role) == null ? "" : User.FindFirstValue(ClaimTypes.Role);
+            if (!(role == "Admin" || role == "Moderator" || _albumService.GetUserOfItem(id) == email))
+                return Unauthorized();
+
             var album = _albumService.UpdateAlbum(id, request);
             if (album == null)
                 return NotFound();
@@ -67,6 +78,13 @@ namespace backend.Controllers
         [HttpDelete("{id}")]
         public ActionResult DeleteAlbum(int id)
         {
+            if (!User.Identity.IsAuthenticated)
+                return Unauthorized();
+            var email = User.FindFirstValue("Email");
+            var role = User.FindFirstValue(ClaimTypes.Role) == null ? "" : User.FindFirstValue(ClaimTypes.Role);
+            if (!(role == "Admin" || role == "Moderator" || _albumService.GetUserOfItem(id) == email))
+                return Unauthorized();
+
             var deleted = _albumService.DeleteAlbum(id);
             if (deleted == false)
                 return NotFound();

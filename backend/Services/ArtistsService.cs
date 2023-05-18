@@ -73,7 +73,7 @@ namespace backend.Services
             return new ArtistResponse(artist, albumResponses);
         }
 
-        public Artist AddArtist(NewArtistRequest request)
+        public Artist AddArtist(NewArtistRequest request, string email)
         {
             Artist artist = new Artist()
             {
@@ -82,7 +82,7 @@ namespace backend.Services
                 WebsiteLink = request.WebsiteLink,
                 DebutYear = request.DebutYear,
                 ProfilePictureUrl = request.ProfilePictureUrl,
-                AddedBy = ""
+                AddedBy = email
             };
             _databaseContext.Artists.Add(artist);
             _databaseContext.SaveChanges();
@@ -153,6 +153,18 @@ namespace backend.Services
             return artistSongs.OrderByDescending(a => a.SongsCount)
                 .Skip((filter.PageNumber - 1) * filter.PageSize)
                 .Take(filter.PageSize).ToList();
+        }
+
+        public string GetUserOfItem(int id)
+        {
+            try
+            {
+                return _databaseContext.Artists.First(artist => artist.Id == id).AddedBy;
+            }
+            catch
+            {
+                return "";
+            }
         }
     }
 }
