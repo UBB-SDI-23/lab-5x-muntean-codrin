@@ -1,13 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Container, TextField, Button } from "@mui/material";
 import axios from "axios";
 import { BACKEND_API_URL } from "../../constants";
-import { Link, useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { checkLoggedIn, getEmail, getRole } from "../authService";
 
 const PlaylistAdd = () => {
   const [playlistName, setPlaylistName] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [email, setEmail] = useState(null);
+  const [role, setRole] = useState(null);
+
+  useEffect(() => {
+    setIsLoggedIn(checkLoggedIn());
+    setEmail(getEmail());
+    setRole(getRole());
+  }, []);
+
 
   const handleInputChange = (event) => {
     setPlaylistName(event.target.value);
@@ -36,18 +47,22 @@ const PlaylistAdd = () => {
 
   return (
     <Container>
-      <h1>Add New Playlist</h1>
-      <form onSubmit={handleSubmit}>
-        <TextField
-          label="Playlist Name"
-          value={playlistName}
-          onChange={handleInputChange}
-          error={error.length > 0}
-          helperText={error}
-        />
-        <br />
-        <Button type="submit">Add Playlist</Button>
-      </form>
+      {isLoggedIn && (
+        <>
+          <h1>Add New Playlist</h1>
+          <form onSubmit={handleSubmit}>
+            <TextField
+              label="Playlist Name"
+              value={playlistName}
+              onChange={handleInputChange}
+              error={error.length > 0}
+              helperText={error}
+            />
+            <br />
+            <Button type="submit">Add Playlist</Button>
+          </form>
+        </>)}
+      {!isLoggedIn && (<p>Log in to access this page</p>)}
     </Container>
   );
 };

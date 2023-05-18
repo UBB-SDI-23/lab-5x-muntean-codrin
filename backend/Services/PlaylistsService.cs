@@ -58,11 +58,11 @@ namespace backend.Services
             return playlistResponse;
         }
 
-        public Playlist AddPlaylist(NewPlaylistRequest request)
+        public Playlist AddPlaylist(NewPlaylistRequest request, string email)
         {
             Playlist playlist = new Playlist();
             playlist.Name = request.Name;
-            playlist.AddedBy = "";
+            playlist.AddedBy = email;
             _databaseContext.Playlists.Add(playlist);
             _databaseContext.SaveChanges();
             return playlist;
@@ -136,6 +136,18 @@ namespace backend.Services
             return playlistLengths.OrderBy(p => p.PlaylistId)
                 .Skip((filter.PageNumber - 1) * filter.PageSize)
                 .Take(filter.PageSize).ToList();
+        }
+
+        public string GetUserOfItem(int id)
+        {
+            try
+            {
+                return _databaseContext.Playlists.First(playlist => playlist.Id == id).AddedBy;
+            }
+            catch
+            {
+                return "";
+            }
         }
     }
 }

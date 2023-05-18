@@ -47,9 +47,9 @@ export const PlaylistsShowLength = () => {
   }, []);
 
   const handleChangePage = (event, newPage: number) => {
-    setPage(newPage + 1);
-    updateUrlParams(newPage + 1, pageSize);
-    fetch(`${BACKEND_API_URL}/playlists/length?pageNumber=${newPage + 1}&pageSize=${pageSize}`)
+    setPage(newPage);
+    updateUrlParams(newPage, pageSize);
+    fetch(`${BACKEND_API_URL}/playlists/length?pageNumber=${newPage}&pageSize=${pageSize}`)
       .then((response) => response.json())
       .then((data) => {
         setPlaylistLengths(data.data);

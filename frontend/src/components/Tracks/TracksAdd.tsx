@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Container, TextField, Button } from "@mui/material";
 import axios from "axios";
 import { BACKEND_API_URL } from "../../constants";
 import { Link, useNavigate } from "react-router-dom";
+import { checkLoggedIn, getEmail, getRole } from "../authService";
 
 const TrackAdd = () => {
   const [trackData, setTrackData] = useState({
@@ -14,6 +15,16 @@ const TrackAdd = () => {
   });
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [email, setEmail] = useState(null);
+  const [role, setRole] = useState(null);
+
+  useEffect(() => {
+    setIsLoggedIn(checkLoggedIn());
+    setEmail(getEmail());
+    setRole(getRole());
+  }, []);
+
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -72,57 +83,61 @@ const TrackAdd = () => {
 
   return (
     <Container>
-      <h1>Add New Track</h1>
-      <form onSubmit={handleSubmit}>
-        <TextField
-          label="Track Name"
-          name="name"
-          value={trackData.name}
-          onChange={handleInputChange}
-          error={!!errors.name}
-          helperText={errors.name}
-        />
-        <br />
-        <TextField
-          label="Album ID"
-          name="albumId"
-          value={trackData.albumId}
-          onChange={handleInputChange}
-          error={!!errors.albumId}
-          helperText={errors.albumId}
-        />
-        <br />
-        <TextField
-          label="Composer"
-          name="composer"
-          value={trackData.composer}
-          onChange={handleInputChange}
-          error={!!errors.composer}
-          helperText={errors.composer}
-        />
-        <br />
-        <TextField
-          type="number"
-          label="Milliseconds"
-          name="milliseconds"
-          value={trackData.milliseconds}
-          onChange={handleInputChange}
-          error={!!errors.milliseconds}
-          helperText={errors.milliseconds}
-        />
-        <br />
-        <TextField
-          type="date"
-          label="Release Date"
-          name="releaseDate"
-          value={trackData.releaseDate}
-          onChange={handleInputChange}
-          error={!!errors.releaseDate}
-          helperText={errors.releaseDate}
-        />
-        <br />
-        <Button type="submit">Add Track</Button>
-      </form>
+      {isLoggedIn && (
+        <>
+          <h1>Add New Track</h1>
+          <form onSubmit={handleSubmit}>
+            <TextField
+              label="Track Name"
+              name="name"
+              value={trackData.name}
+              onChange={handleInputChange}
+              error={!!errors.name}
+              helperText={errors.name}
+            />
+            <br />
+            <TextField
+              label="Album ID"
+              name="albumId"
+              value={trackData.albumId}
+              onChange={handleInputChange}
+              error={!!errors.albumId}
+              helperText={errors.albumId}
+            />
+            <br />
+            <TextField
+              label="Composer"
+              name="composer"
+              value={trackData.composer}
+              onChange={handleInputChange}
+              error={!!errors.composer}
+              helperText={errors.composer}
+            />
+            <br />
+            <TextField
+              type="number"
+              label="Milliseconds"
+              name="milliseconds"
+              value={trackData.milliseconds}
+              onChange={handleInputChange}
+              error={!!errors.milliseconds}
+              helperText={errors.milliseconds}
+            />
+            <br />
+            <TextField
+              type="date"
+              label="Release Date"
+              name="releaseDate"
+              value={trackData.releaseDate}
+              onChange={handleInputChange}
+              error={!!errors.releaseDate}
+              helperText={errors.releaseDate}
+            />
+            <br />
+            <Button type="submit">Add Track</Button>
+          </form>
+        </>)}
+      {!isLoggedIn && (<p>Log in to access this page</p>)}
     </Container>
   );
 };

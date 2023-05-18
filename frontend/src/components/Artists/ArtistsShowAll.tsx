@@ -42,10 +42,10 @@ export const ArtistsShowAll = () => {
     const [totalRecords, setTotalRecords] = useState(0);
 
     const handleChangePage = (event, newPage: number) => {
-        setPage(newPage + 1);
-        updateUrlParams(newPage + 1, pageSize);
+        setPage(newPage);
+        updateUrlParams(newPage, pageSize);
         setLoading(true);
-        fetch(`${BACKEND_API_URL}/artists?pageNumber=${newPage + 1}&pageSize=${pageSize}`)
+        fetch(`${BACKEND_API_URL}/artists?pageNumber=${newPage}&pageSize=${pageSize}`)
             .then((response) => response.json())
             .then((data) => {
                 setArtists(data.data);

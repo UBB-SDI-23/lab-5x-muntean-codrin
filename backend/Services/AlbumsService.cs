@@ -41,7 +41,7 @@ namespace backend.Services
             return album;
         }
 
-        public Album AddAlbum(NewAlbumRequest request)
+        public Album AddAlbum(NewAlbumRequest request, string email)
         {
             var artist = _databaseContext.Artists.FirstOrDefault(a => a.Id == request.ArtistId);
             if(artist == null)
@@ -55,7 +55,7 @@ namespace backend.Services
                 ArtistId = request.ArtistId,
                 ReleaseDate = request.ReleaseDate,
                 CoverImageUrl = request.CoverImageUrl,
-                AddedBy = ""
+                AddedBy = email
             };
 
             _databaseContext.Albums.Add(album);
@@ -96,6 +96,18 @@ namespace backend.Services
             _databaseContext.Albums.Remove(album);
             _databaseContext.SaveChanges();
             return true;
+        }
+
+        public string GetUserOfItem(int id)
+        {
+            try
+            {
+                return _databaseContext.Albums.First(album => album.Id == id).AddedBy;
+            }
+            catch
+            {
+                return "";
+            }
         }
     }
 

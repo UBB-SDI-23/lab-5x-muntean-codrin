@@ -5,7 +5,9 @@ using backend.Models.Request;
 using backend.Models.Response;
 using backend.Models.Statistics;
 using backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace backend.Controllers
 {
@@ -47,15 +49,24 @@ namespace backend.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public ActionResult<Playlist> PostPlaylist([FromBody] NewPlaylistRequest request)
         {
-            Playlist playlist = _playlistService.AddPlaylist(request);
+            var email = User.FindFirstValue("Email");
+            Playlist playlist = _playlistService.AddPlaylist(request, email);
             return Ok(playlist);
         }
 
         [HttpPut("{id}")]
         public ActionResult<Playlist> PutPlaylist(int id, [FromBody] NewPlaylistRequest request)
         {
+            if (!User.Identity.IsAuthenticated)
+                return Unauthorized();
+            var email = User.FindFirstValue("Email");
+            var role = User.FindFirstValue(ClaimTypes.Role) == null ? "" : User.FindFirstValue(ClaimTypes.Role);
+            if (!(role == "Admin" || role == "Moderator" || _playlistService.GetUserOfItem(id) == email))
+                return Unauthorized();
+
             var playlist = _playlistService.UpdatePlaylist(id, request);
             if (playlist == null)
                 return null;
@@ -65,6 +76,13 @@ namespace backend.Controllers
         [HttpDelete("{id}")]
         public ActionResult DeletePlaylist(int id)
         {
+            if (!User.Identity.IsAuthenticated)
+                return Unauthorized();
+            var email = User.FindFirstValue("Email");
+            var role = User.FindFirstValue(ClaimTypes.Role) == null ? "" : User.FindFirstValue(ClaimTypes.Role);
+            if (!(role == "Admin" || role == "Moderator" || _playlistService.GetUserOfItem(id) == email))
+                return Unauthorized();
+
             var deleted = _playlistService.DeletePlaylist(id);
             if (deleted)
                 return Ok();
@@ -74,6 +92,13 @@ namespace backend.Controllers
         [HttpPost("{id}/tracks/{trackId}")]
         public ActionResult AddTrackToPlaylist(int id, int trackId, [FromQuery(Name = "note")] string? note)
         {
+            if (!User.Identity.IsAuthenticated)
+                return Unauthorized();
+            var email = User.FindFirstValue("Email");
+            var role = User.FindFirstValue(ClaimTypes.Role) == null ? "" : User.FindFirstValue(ClaimTypes.Role);
+            if (!(role == "Admin" || role == "Moderator" || _playlistService.GetUserOfItem(id) == email))
+                return Unauthorized();
+
             if (note == null)
                 note = "";
             var added = _playlistService.AddTrackToPlaylist(id, trackId, note);
@@ -85,6 +110,13 @@ namespace backend.Controllers
         [HttpDelete("{id}/tracks/{trackId}")]
         public ActionResult RemoveTrackFromPlaylist(int id, int trackId)
         {
+            if (!User.Identity.IsAuthenticated)
+                return Unauthorized();
+            var email = User.FindFirstValue("Email");
+            var role = User.FindFirstValue(ClaimTypes.Role) == null ? "" : User.FindFirstValue(ClaimTypes.Role);
+            if (!(role == "Admin" || role == "Moderator" || _playlistService.GetUserOfItem(id) == email))
+                return Unauthorized();
+
             var removed = _playlistService.RemoveTrackFromPlaylist(id, trackId);
             if (removed)
                 return Ok();

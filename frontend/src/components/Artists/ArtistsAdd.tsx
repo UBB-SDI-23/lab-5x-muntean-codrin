@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Container, TextField, Button } from "@mui/material";
 import axios from "axios";
 import { BACKEND_API_URL } from "../../constants";
 import { Link, useNavigate } from "react-router-dom";
+import { checkLoggedIn, getEmail, getRole } from "../authService";
 
 const ArtistAdd = () => {
     const [artistData, setArtistData] = useState({
@@ -14,6 +15,15 @@ const ArtistAdd = () => {
     });
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [email, setEmail] = useState(null);
+    const [role, setRole] = useState(null);
+
+    useEffect(() => {
+        setIsLoggedIn(checkLoggedIn());
+        setEmail(getEmail());
+        setRole(getRole());
+    }, []);
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;
@@ -65,67 +75,72 @@ const ArtistAdd = () => {
 
     return (
         <Container>
-            <h1>Add New Artist</h1>
-            <form onSubmit={handleSubmit}>
-                <TextField
-                    label="Artist Name"
-                    name="name"
-                    value={artistData.name}
-                    onChange={handleInputChange}
-                    error={!!errors.name}
-                    helperText={errors.name}
-                    required
-                    sx={{ mb: 2 }}
-                />
-                <br />
-                <TextField
-                    label="Description"
-                    name="description"
-                    value={artistData.description}
-                    onChange={handleInputChange}
-                    error={!!errors.description}
-                    helperText={errors.description}
-                    required
-                    sx={{ mb: 2 }}
-                />
-                <br />
-                <TextField
-                    label="Website Link"
-                    name="websiteLink"
-                    value={artistData.websiteLink}
-                    onChange={handleInputChange}
-                    error={!!errors.websiteLink}
-                    helperText={errors.websiteLink}
-                    required
-                    sx={{ mb: 2 }}
-                />
-                <br />
-                <TextField
-                    type="number"
-                    label="Debut Year"
-                    name="debutYear"
-                    value={artistData.debutYear}
-                    onChange={handleInputChange}
-                    error={!!errors.debutYear}
-                    helperText={errors.debutYear}
-                    required
-                    sx={{ mb: 2 }}
-                />
-                <br />
-                <TextField
-                    label="Profile Picture URL"
-                    name="profilePictureUrl"
-                    value={artistData.profilePictureUrl}
-                    onChange={handleInputChange}
-                    error={!!errors.profilePictureUrl}
-                    helperText={errors.profilePictureUrl}
-                    required
-                    sx={{ mb: 2 }}
-                />
-                <br />
-                <Button type="submit">Add Artist</Button>
-            </form>
+            {isLoggedIn && (
+                <>
+                    <h1>Add New Artist</h1>
+                    <form onSubmit={handleSubmit}>
+                        <TextField
+                            label="Artist Name"
+                            name="name"
+                            value={artistData.name}
+                            onChange={handleInputChange}
+                            error={!!errors.name}
+                            helperText={errors.name}
+                            required
+                            sx={{ mb: 2 }}
+                        />
+                        <br />
+                        <TextField
+                            label="Description"
+                            name="description"
+                            value={artistData.description}
+                            onChange={handleInputChange}
+                            error={!!errors.description}
+                            helperText={errors.description}
+                            required
+                            sx={{ mb: 2 }}
+                        />
+                        <br />
+                        <TextField
+                            label="Website Link"
+                            name="websiteLink"
+                            value={artistData.websiteLink}
+                            onChange={handleInputChange}
+                            error={!!errors.websiteLink}
+                            helperText={errors.websiteLink}
+                            required
+                            sx={{ mb: 2 }}
+                        />
+                        <br />
+                        <TextField
+                            type="number"
+                            label="Debut Year"
+                            name="debutYear"
+                            value={artistData.debutYear}
+                            onChange={handleInputChange}
+                            error={!!errors.debutYear}
+                            helperText={errors.debutYear}
+                            required
+                            sx={{ mb: 2 }}
+                        />
+                        <br />
+                        <TextField
+                            label="Profile Picture URL"
+                            name="profilePictureUrl"
+                            value={artistData.profilePictureUrl}
+                            onChange={handleInputChange}
+                            error={!!errors.profilePictureUrl}
+                            helperText={errors.profilePictureUrl}
+                            required
+                            sx={{ mb: 2 }}
+                        />
+                        <br />
+                        <Button type="submit">Add Artist</Button>
+                    </form>
+                </>)}
+            {!isLoggedIn && (<p>Log in to access this page</p>)}
         </Container>
+
     );
 };
 

@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using Newtonsoft.Json;
 using backend.Services;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace backend.Controllers
 {
@@ -120,6 +122,20 @@ namespace backend.Controllers
                 });
             }
             return Unauthorized(new string[] {"Cannot verify user login info."});
+        }
+
+
+        [HttpGet]
+        [Route("test")]
+        public IActionResult Get()
+        {
+            string a = "";
+            a+=("\nUser Id: " + User.FindFirstValue("Email"));
+            a+=("\nFirst name: " + User.FindFirstValue("FirstName"));
+            a+=("\nLast name: " + User.FindFirstValue("LastName"));
+            a += ("\nRole: " + User.FindFirstValue(ClaimTypes.Role));
+
+            return Ok(a);
         }
     }
 }

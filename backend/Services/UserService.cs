@@ -1,6 +1,8 @@
-﻿using backend.Models;
+﻿using backend.Helpers;
+using backend.Models;
 using backend.Models.Extended;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -19,6 +21,11 @@ namespace backend.Services
             this._userManager = userManager;
             this._configuration = configuration;
             this._databaseContext = databaseContext;
+        }
+
+        public int GetUserCount()
+        {
+            return _databaseContext.Users.Count();
         }
 
         public async Task<JwtSecurityToken> GenerateJwt(User user)
@@ -68,14 +75,42 @@ namespace backend.Services
             //calculate entities
 
             int count = 0;
-            count += _databaseContext.Albums.Where(a => a.AddedBy == email).Count();
-            count += _databaseContext.Artists.Where(a => a.AddedBy == email).Count();
-            count += _databaseContext.Tracks.Where(a => a.AddedBy == email).Count();
-            count += _databaseContext.Playlists.Where(a => a.AddedBy == email).Count();
+            //count += _databaseContext.Albums.Where(a => a.AddedBy == email).Count();
+            //count += _databaseContext.Artists.Where(a => a.AddedBy == email).Count();
+            //count += _databaseContext.Tracks.Where(a => a.AddedBy == email).Count();
+            //count += _databaseContext.Playlists.Where(a => a.AddedBy == email).Count();
 
-            var userExtended = new UserExtended(user, count);
+            var userExtended = new UserExtended(user, count, _databaseContext.Roles.FirstOrDefault(r => _databaseContext.UserRoles.Any(ur => ur.UserId == user.Id && ur.RoleId == r.Id)).Name);
             return userExtended;
 
+        }
+
+        public List<UserExtended> GetAll(PaginationFilter filter)
+        {
+            var users = _databaseContext.Users
+                    .Skip((filter.PageNumber - 1) * filter.PageSize)
+                    .Take(filter.PageSize)
+                    .OrderBy(a => a.Id)
+                    .Select(user => new UserExtended(user,
+                        0, _databaseContext.Roles.FirstOrDefault(r => _databaseContext.UserRoles.Any(ur => ur.UserId == user.Id && ur.RoleId == r.Id)).Name)).ToList();
+            return users;
+        }
+
+        public async Task<bool> UpdateUserRole(string email, string role)
+        {
+            if (role != "Admin" || role != "Moderator" || role != "User") ;
+            var user = _databaseContext.Users.FirstOrDefault(u => u.UserName == email);
+            if (user == null) return false;
+            bool result;
+            if (role == "User")
+            {
+                result = (await _userManager.RemoveFromRolesAsync(user, new List<string> { "Admin", "Moderator" })).Succeeded;
+                return result;
+            }
+
+            result = (await _userManager.RemoveFromRolesAsync(user, new List<string> { "Admin", "Moderator" })).Succeeded;
+            result = (await _userManager.AddToRoleAsync(user, role)).Succeeded;
+            return result;
         }
     }
 }

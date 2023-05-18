@@ -73,6 +73,7 @@ export const PlaylistDetails = () => {
                                 <TableCell align="center">Composer</TableCell>
                                 <TableCell align="center">Duration</TableCell>
                                 <TableCell align="center">Release Date</TableCell>
+                                <TableCell align="center">Delete</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -88,6 +89,9 @@ export const PlaylistDetails = () => {
                                     <TableCell align="center">{track.milliseconds}</TableCell>
                                     <TableCell align="center">
                                         {track.releaseDate.toString()}
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        
                                     </TableCell>
                                 </TableRow>
                             ))}

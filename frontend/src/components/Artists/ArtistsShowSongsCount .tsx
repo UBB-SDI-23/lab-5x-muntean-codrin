@@ -49,9 +49,9 @@ export const ArtistsShowSongsCount = () => {
   }, []);
 
   const handleChangePage = (event, newPage: number) => {
-    setPage(newPage + 1);
-    updateUrlParams(newPage + 1, pageSize);
-    fetch(`${BACKEND_API_URL}/Artists/Songs?pageNumber=${newPage + 1}&pageSize=${pageSize}`)
+    setPage(newPage);
+        updateUrlParams(newPage, pageSize);
+    fetch(`${BACKEND_API_URL}/Artists/Songs?pageNumber=${newPage}&pageSize=${pageSize}`)
       .then((response) => response.json())
       .then((data) => {
         setSongsCounts(data.data);

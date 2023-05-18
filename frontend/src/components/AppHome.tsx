@@ -2,46 +2,25 @@ import { Container, Typography, Button } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import jwt from "jsonwebtoken";
+import { checkLoggedIn, getRole, getUserData } from "./authService.ts";
 
 export const AppHome = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userData, setUserData] = useState(null);
+    const [role, setRole] = useState(null);
 
     const handleLogout = () => {
-        // Clear the token from storage and perform any additional logout actions
         localStorage.removeItem("token");
         setIsLoggedIn(false);
         setUserData(null);
     };
 
     useEffect(() => {
-        getUserData();
-    }, []); // Run only once on component mount
-
-    const getUserData = () => {
-        // Retrieve and decode the token from storage
-        const token = localStorage.getItem("token");
-        if (token) {
-            // Decode the token and extract user information
-            const decodedToken = decodeToken(token);
-            setUserData(decodedToken);
-            setIsLoggedIn(true);
-        }
-    };
-
-    // Function to decode the JWT token
-    const decodeToken = (token) => {
-        try {
-            const tokenParts = token.split(".");
-            const encodedPayload = tokenParts[1];
-            const decodedPayload = JSON.parse(atob(encodedPayload));
-            console.log(decodedPayload);
-            return decodedPayload;
-        } catch (error) {
-            console.error("Error decoding token:", error);
-            return null;
-        }
-    };
+        setIsLoggedIn(checkLoggedIn());
+        setUserData(getUserData());
+        setRole(getRole());
+        console.log(getRole());
+    }, []);
 
     return (
         <React.Fragment>
@@ -67,6 +46,9 @@ export const AppHome = () => {
                         </Typography>
                         <Typography variant="h5" component="p" gutterBottom>
                             Email: {userData.Email}
+                        </Typography>
+                        <Typography variant="h5" component="p" gutterBottom>
+                            Role: {role}
                         </Typography>
                         <Button variant="contained" onClick={handleLogout}>
                             Logout

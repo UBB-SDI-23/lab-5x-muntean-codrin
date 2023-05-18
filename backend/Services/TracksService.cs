@@ -41,7 +41,7 @@ namespace backend.Services
             return track;
         }
 
-        public Track AddTrack(NewTrackRequest request)
+        public Track AddTrack(NewTrackRequest request, string email)
         {
             var album = _databaseContext.Albums.FirstOrDefault(a => a.Id == request.AlbumId);
             if(album == null)
@@ -55,7 +55,7 @@ namespace backend.Services
                 Composer = request.Composer,
                 Milliseconds = request.Milliseconds,
                 ReleaseDate = request.ReleaseDate,
-                AddedBy = ""
+                AddedBy = email
             };
             _databaseContext.Tracks.Add(track);
             _databaseContext.SaveChanges();
@@ -89,6 +89,18 @@ namespace backend.Services
             _databaseContext.Tracks.Remove(track);
             _databaseContext.SaveChanges();
             return true;
+        }
+
+        public string GetUserOfItem(int id)
+        {
+            try
+            {
+                return _databaseContext.Tracks.First(track => track.Id == id).AddedBy;
+            }
+            catch
+            {
+                return "";
+            }
         }
 
 
