@@ -64,7 +64,14 @@ const ArtistAdd = () => {
         }
 
         try {
-            const response = await axios.post(`${BACKEND_API_URL}/artists`, artistData);
+            const token = localStorage.getItem("token");
+            const headers = {
+                Authorization: `Bearer ${token}`,
+            };
+
+            const response = await axios.post(`${BACKEND_API_URL}/artists`, artistData, {
+                headers: headers,
+            });
             navigate("/artists");
             // Handle success or navigate to another page
         } catch (error) {

@@ -60,7 +60,11 @@ const AlbumAdd = () => {
     }
 
     try {
-      const response = await axios.post(`${BACKEND_API_URL}/albums`, albumData);
+      const token = localStorage.getItem("token");
+      const headers = {
+          Authorization: `Bearer ${token}`,
+      };
+      const response = await axios.post(`${BACKEND_API_URL}/albums`, albumData, {headers: headers});
       navigate("/albums");
       // Handle success or navigate to another page
     } catch (error) {

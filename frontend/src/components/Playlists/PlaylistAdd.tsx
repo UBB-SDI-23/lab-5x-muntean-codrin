@@ -34,9 +34,13 @@ const PlaylistAdd = () => {
     }
 
     try {
+      const token = localStorage.getItem("token");
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
       const response = await axios.post(`${BACKEND_API_URL}/playlists`, {
         name: playlistName,
-      });
+      }, { headers: headers });
       navigate("/playlists");
       // Handle success or navigate to another page
     } catch (error) {

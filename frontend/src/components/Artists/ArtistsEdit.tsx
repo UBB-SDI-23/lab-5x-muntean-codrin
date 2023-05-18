@@ -3,6 +3,7 @@ import { Container, TextField, Button } from "@mui/material";
 import axios from "axios";
 import { BACKEND_API_URL } from "../../constants";
 import { useParams, useNavigate } from "react-router-dom";
+import { checkLoggedIn, getEmail, getRole } from "../authService";
 
 const ArtistEdit = () => {
     const { artistId } = useParams();
@@ -15,8 +16,15 @@ const ArtistEdit = () => {
     });
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [email, setEmail] = useState(null);
+    const [role, setRole] = useState(null);
+    const [addedBy, setAddedBy] = useState("");
 
     useEffect(() => {
+        setIsLoggedIn(checkLoggedIn());
+        setEmail(getEmail());
+        setRole(getRole());
         const fetchArtistData = async () => {
             try {
                 const response = await axios.get(`${BACKEND_API_URL}/artists/${artistId}`);
@@ -28,6 +36,7 @@ const ArtistEdit = () => {
                     debutYear,
                     profilePictureUrl,
                 });
+                setAddedBy(response.data.addedBy);
             } catch (error) {
                 console.log(error);
                 // Handle error
@@ -76,7 +85,13 @@ const ArtistEdit = () => {
         }
 
         try {
-            const response = await axios.put(`${BACKEND_API_URL}/artists/${artistId}`, artistData);
+            const token = localStorage.getItem("token");
+            const headers = {
+                Authorization: `Bearer ${token}`,
+            };
+            const response = await axios.put(`${BACKEND_API_URL}/artists/${artistId}`, artistData, {
+                headers: headers,
+            });
             navigate("/artists");
             // Handle success or navigate to another page
         } catch (error) {
@@ -87,66 +102,71 @@ const ArtistEdit = () => {
 
     return (
         <Container>
-            <h1>Edit Artist</h1>
-            <form onSubmit={handleSubmit}>
-                <TextField
-                    label="Artist Name"
-                    name="name"
-                    value={artistData.name}
-                    onChange={handleInputChange}
-                    error={!!errors.name}
-                    helperText={errors.name}
-                    required
-                    sx={{ mb: 2 }}
-                />
-                <br />
-                <TextField
-                    label="Description"
-                    name="description"
-                    value={artistData.description}
-                    onChange={handleInputChange}
-                    error={!!errors.description}
-                    helperText={errors.description}
-                    required
-                    sx={{ mb: 2 }}
-                />
-                <br />
-                <TextField
-                    label="Website Link"
-                    name="websiteLink"
-                    value={artistData.websiteLink}
-                    onChange={handleInputChange}
-                    error={!!errors.websiteLink}
-                    helperText={errors.websiteLink}
-                    required
-                    sx={{ mb: 2 }}
-                />
-                <br />
-                <TextField
-                    type="number"
-                    label="Debut Year"
-                    name="debutYear"
-                    value={artistData.debutYear}
-                    onChange={handleInputChange}
-                    error={!!errors.debutYear}
-                    helperText={errors.debutYear}
-                    required
-                    sx={{ mb: 2 }}
-                />
-                <br />
-                <TextField
-                    label="Profile Picture URL"
-                    name="profilePictureUrl"
-                    value={artistData.profilePictureUrl}
-                    onChange={handleInputChange}
-                    error={!!errors.profilePictureUrl}
-                    helperText={errors.profilePictureUrl}
-                    required
-                    sx={{ mb: 2 }}
-                />
-                <br />
-                <Button type="submit">Save Changes</Button>
-            </form>
+            {!isLoggedIn && (<p>Log in to access this page</p>)}
+            {isLoggedIn && !(addedBy === email || role === "Admin" || role == "Moderator") && (<p>You dont have permission to edit this.</p>)}
+            {isLoggedIn && (addedBy === email || role === "Admin" || role == "Moderator") && (
+                <>
+                    <h1>Edit Artist</h1>
+                    <form onSubmit={handleSubmit}>
+                        <TextField
+                            label="Artist Name"
+                            name="name"
+                            value={artistData.name}
+                            onChange={handleInputChange}
+                            error={!!errors.name}
+                            helperText={errors.name}
+                            required
+                            sx={{ mb: 2 }}
+                        />
+                        <br />
+                        <TextField
+                            label="Description"
+                            name="description"
+                            value={artistData.description}
+                            onChange={handleInputChange}
+                            error={!!errors.description}
+                            helperText={errors.description}
+                            required
+                            sx={{ mb: 2 }}
+                        />
+                        <br />
+                        <TextField
+                            label="Website Link"
+                            name="websiteLink"
+                            value={artistData.websiteLink}
+                            onChange={handleInputChange}
+                            error={!!errors.websiteLink}
+                            helperText={errors.websiteLink}
+                            required
+                            sx={{ mb: 2 }}
+                        />
+                        <br />
+                        <TextField
+                            type="number"
+                            label="Debut Year"
+                            name="debutYear"
+                            value={artistData.debutYear}
+                            onChange={handleInputChange}
+                            error={!!errors.debutYear}
+                            helperText={errors.debutYear}
+                            required
+                            sx={{ mb: 2 }}
+                        />
+                        <br />
+                        <TextField
+                            label="Profile Picture URL"
+                            name="profilePictureUrl"
+                            value={artistData.profilePictureUrl}
+                            onChange={handleInputChange}
+                            error={!!errors.profilePictureUrl}
+                            helperText={errors.profilePictureUrl}
+                            required
+                            sx={{ mb: 2 }}
+                        />
+                        <br />
+                        <Button type="submit">Save Changes</Button>
+                    </form>
+                </>)}
         </Container>
     );
 };

@@ -10,14 +10,21 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from '@mui/icons-material/Edit';
 import Track from "../../models/Track";
 import Playlist from "../../models/Playlist";
+import { checkLoggedIn, getEmail, getRole } from "../authService";
 
 
 export const PlaylistDetails = () => {
     const { playlistId } = useParams();
     const [playlist, setPlaylist] = useState<Playlist>();
     const [loading, setLoading] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [email, setEmail] = useState(null);
+    const [role, setRole] = useState(null);
 
     useEffect(() => {
+        setIsLoggedIn(checkLoggedIn());
+        setEmail(getEmail());
+        setRole(getRole());
         const url = `${BACKEND_API_URL}/playlists/${playlistId}`;
         const fetchPlaylist = async () => {
             setLoading(true);
@@ -44,6 +51,7 @@ export const PlaylistDetails = () => {
                     <p>Playlist Name: {playlist?.name}</p>
                     <p>Added By: {playlist?.addedBy}</p>
                 </CardContent>
+                {isLoggedIn && (playlist?.addedBy === email || role === "Admin" || role == "Moderator") &&  (
                 <CardActions>
                     <IconButton
                         component={Link}
@@ -60,7 +68,7 @@ export const PlaylistDetails = () => {
                     >
                         <DeleteForeverIcon sx={{ color: "red" }} />
                     </IconButton>
-                </CardActions>
+                </CardActions>)};
             </Card>
 
             {playlist && (
